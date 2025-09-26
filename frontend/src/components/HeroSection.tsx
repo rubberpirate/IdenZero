@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Building2, Users, Zap, Shield, Wallet, X } from 'lucide-react';
+import { ArrowRight, Shield, Users, Zap, CheckCircle, Github, Wallet, X } from 'lucide-react';
 import { PinContainer } from '@/components/ui/3d-pin';
 import { InteractiveHoverButton } from '@/components/ui/interactive-hover-button';
-// Removed auth context for now
 import { useNavigate } from 'react-router-dom';
 
 // Custom hook for viewport detection
@@ -147,25 +146,25 @@ const HeroSection = () => {
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 text-[9px] sm:text-[10px] font-medium rounded-full bg-muted text-white">
             <span className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
-            <span className="hidden sm:inline">Smart Wallet with EMI & NFT Integration</span>
-            <span className="sm:hidden">Smart Wallet Innovation</span>
-            <Zap className="h-2.5 w-2.5 text-primary" />
+            <span className="hidden sm:inline">Decentralized Identity & Skill Verification</span>
+            <span className="sm:hidden">Web3 Identity Platform</span>
+            <Shield className="h-2.5 w-2.5 text-primary" />
           </span>
         </div>
 
         {/* Main Headline */}
         <h1 className="text-3xl xs:text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium tracking-tighter text-white leading-tight sm:leading-none px-1 sm:px-0">
-          <span className="text-green-200 block sm:inline">Aptex Wallet</span>
+          <span className="text-green-600 block sm:inline">TrustHire</span>
           <span className="text-2xl xs:text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl block mt-2 sm:mt-2 text-white">
-            <span className="block">EMI, NFT &</span>
-            <span className="block">INR Integration</span>
+            <span className="block">Verified Talent,</span>
+            <span className="block">Trusted Hiring</span>
           </span>
         </h1>
 
         {/* Subheading */}
         <p className="text-base xs:text-lg sm:text-lg md:text-xl text-white/90 max-w-sm sm:max-w-2xl md:max-w-3xl mx-auto text-balance leading-relaxed px-2 sm:px-2 md:px-0">
-          <span className="sm:hidden block">Crypto-UPI bridge with EMI & NFT rewards.</span>
-          <span className="hidden sm:inline">We're building a smart wallet on Aptos that makes money move like messages. With UPI-crypto bridging, EMI options, and NFT-backed loyalty, it's the first wallet to blend <span className="text-green-200">Payments + RWA + Global transactions</span> in one place.</span>
+          <span className="sm:hidden block">End fake profiles. Blockchain-verified resumes.</span>
+          <span className="hidden sm:inline">The first decentralized platform that eliminates fake profiles in hiring. Using blockchain verification, AI skill analysis, and cryptographic proofs to connect <span className="text-green-600">genuine talent with legitimate opportunities</span>.</span>
         </p>
 
         {/* CTA Buttons */}
@@ -187,11 +186,11 @@ const HeroSection = () => {
 
         {/* Trust Indicator */}
         <div className="pt-4 sm:pt-6 text-xs sm:text-sm text-white/80 text-center px-4">
-          <span className="block sm:inline">Built on Aptos blockchain</span>
+          <span className="block sm:inline">85% of resumes contain false information</span>
           <span className="hidden sm:inline"> • </span>
-          <span className="block sm:inline">Smart contract security</span>
+          <span className="block sm:inline">Blockchain-verified credentials</span>
           <span className="hidden sm:inline"> • </span>
-          <span className="block sm:inline">UPI integration ready</span>
+          <span className="block sm:inline">AI-powered skill analysis</span>
         </div>
           </div>
 
@@ -201,8 +200,8 @@ const HeroSection = () => {
             <div className="flex flex-col lg:flex-row gap-6 sm:gap-6 md:gap-8 lg:gap-12 justify-center items-center px-4 sm:px-4">
           {isDesktop ? (
             <>
-              {/* Individual Solutions Card (3D) */}
-              <PinContainer title="Pay Using Crypto" href="/user">
+              {/* For Job Seekers Card (3D) */}
+              <PinContainer title="Verify Your Skills" href="/user">
                 <div className="flex flex-col p-6 sm:p-8 tracking-tight text-slate-100/50 w-full max-w-[22rem] sm:w-[24rem] h-auto min-h-[24rem] sm:h-[26rem] bg-gradient-to-b from-slate-800/50 to-slate-800/0 backdrop-blur-sm border border-slate-700/50 rounded-2xl">
                   {/* Header */}
                   <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -210,20 +209,20 @@ const HeroSection = () => {
                       <Users className="h-6 w-6 sm:h-7 sm:w-7 text-slate-300" />
                     </div>
                   <div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-1">For Individuals</h3>
-                    <p className="text-sm text-slate-400">EMI, NFT & INR Integration</p>
+                    <h3 className="text-lg sm:text-xl font-semibold text-white mb-1">For Job Seekers</h3>
+                    <p className="text-sm text-slate-400">Verified Identity & Skills</p>
                   </div>
                 </div>
 
                   {/* Stats Grid */}
                   <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
                     <div className="space-y-2">
-                      <div className="text-2xl sm:text-3xl font-bold text-slate-200">EMI</div>
-                      <div className="text-xs text-slate-400 leading-relaxed">Crypto Payments</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-200">100%</div>
+                      <div className="text-xs text-slate-400 leading-relaxed">Verified Credentials</div>
                     </div>
                     <div className="space-y-2">
-                      <div className="text-2xl sm:text-3xl font-bold text-slate-200">INR</div>
-                      <div className="text-xs text-slate-400 leading-relaxed">Live Conversion</div>
+                      <div className="text-2xl sm:text-3xl font-bold text-slate-200">AI</div>
+                      <div className="text-xs text-slate-400 leading-relaxed">Skill Analysis</div>
                     </div>
                   </div>
 
@@ -231,21 +230,21 @@ const HeroSection = () => {
                   <div className="space-y-3 sm:space-y-4 flex-1">
                     <div className="flex items-center gap-3 sm:gap-4">
                       <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0" />
-                      <span className="text-slate-300 text-sm">Monthly EMI in APT tokens</span>
+                      <span className="text-slate-300 text-sm">Blockchain identity verification</span>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0" />
-                      <span className="text-slate-300 text-sm">NFT collectibles & rewards</span>
+                      <Github className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0" />
+                      <span className="text-slate-300 text-sm">GitHub skill analysis</span>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <Users className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0" />
-                      <span className="text-slate-300 text-sm">UPI-APT bridging</span>
+                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0" />
+                      <span className="text-slate-300 text-sm">Soulbound certificates</span>
                     </div>
                   </div>                  {/* Status Indicator */}
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-700/30">
                     <div className="flex items-center gap-3">
-                      <div className="size-3 rounded-full bg-green-500 animate-pulse" />
-                      <div className="text-xs text-slate-400">Ready to Spend</div>
+                      <div className="size-3 rounded-full bg-blue-500 animate-pulse" />
+                      <div className="text-xs text-slate-400">Build Trust Score</div>
                     </div>
                     <Button 
                       size="sm" 
@@ -255,7 +254,7 @@ const HeroSection = () => {
                         window.location.href = '/user';
                       }}
                     >
-                      Get Started
+                      Get Verified
                       <ArrowRight className="ml-1 h-3 w-3" />
                     </Button>
                   </div>
@@ -265,31 +264,31 @@ const HeroSection = () => {
             </>
           ) : (
             <>
-              {/* Minimal Individual Card */}
+              {/* Minimal Job Seekers Card */}
               <div className="w-full max-w-sm bg-slate-800/70 backdrop-blur-sm border border-slate-600/30 rounded-2xl p-6 flex flex-col items-start gap-4 shadow-lg">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="h-12 w-12 rounded-xl bg-green-600/20 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-green-400" />
+                  <div className="h-12 w-12 rounded-xl bg-blue-600/20 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-blue-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">For Individuals</h3>
-                    <p className="text-sm text-slate-300">EMI, NFT & INR Integration</p>
+                    <h3 className="text-lg font-semibold text-white">For Job Seekers</h3>
+                    <p className="text-sm text-slate-300">Verified Identity & Skills</p>
                   </div>
                 </div>
-                <div className="text-sm text-slate-200 font-medium leading-relaxed">Buy with EMI in APT tokens, collect NFTs, see INR values.</div>
+                <div className="text-sm text-slate-200 font-medium leading-relaxed">Build trust with blockchain-verified credentials and AI skill analysis.</div>
                 {/* Feature List */}
                 <ul className="mt-2 space-y-3 w-full">
                   <li className="flex items-center gap-3 text-sm text-slate-200">
-                    <Shield className="h-4 w-4 text-green-400 flex-shrink-0" /> 
-                    Monthly EMI in APT tokens
+                    <Shield className="h-4 w-4 text-blue-400 flex-shrink-0" /> 
+                    Blockchain identity verification
                   </li>
                   <li className="flex items-center gap-3 text-sm text-slate-200">
-                    <Zap className="h-4 w-4 text-green-400 flex-shrink-0" /> 
-                    NFT collectibles & rewards
+                    <Github className="h-4 w-4 text-blue-400 flex-shrink-0" /> 
+                    GitHub skill analysis
                   </li>
                   <li className="flex items-center gap-3 text-sm text-slate-200">
-                    <Users className="h-4 w-4 text-green-400 flex-shrink-0" /> 
-                    UPI-APT bridging
+                    <CheckCircle className="h-4 w-4 text-blue-400 flex-shrink-0" /> 
+                    Soulbound certificates
                   </li>
                 </ul>
                 <Button
@@ -297,7 +296,7 @@ const HeroSection = () => {
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl mt-3 h-11"
                   onClick={() => window.location.href = '/user'}
                 >
-                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  Get Verified <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
 

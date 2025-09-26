@@ -27,51 +27,51 @@ const FeaturesSection = () => {
   // Move features array to the top so it's available to all hooks
   const features = [
     {
-      icon: CreditCard,
-      title: "EMI Option (Crypto-based EMI)",
-      description: "Buy products/services with monthly installments in Aptos tokens. Smart contracts track payments with on-chain credit scoring.",
+      icon: Shield,
+      title: "Identity Verification",
+      description: "Multi-layer identity verification with Aadhaar integration and Self.xyz decentralized identity. Cryptographic proof of authenticity.",
       delay: "delay-200"
     },
     {
-      icon: Shield,
-      title: "NFT Collectibles",
-      description: "Wallet doubles as NFT showcase. Store, trade Aptos-based NFTs and receive loyalty rewards from merchants.",
+      icon: Lock,
+      title: "Credential Authentication",
+      description: "Digital signature verification and Soulbound Tokens for immutable credential records. Institutional partnerships for direct verification.",
       delay: "delay-300"
     },
     {
-      icon: Globe,
-      title: "Fiat INR Integration",
-      description: "UPI ID ↔ Aptos public key mapping with real-time INR↔APT rates. Price in INR, settle in APT.",
+      icon: Zap,
+      title: "AI-Powered Skill Analysis",
+      description: "Deep GitHub analysis, multi-platform integration, and real-time skill assessment with technology stack proficiency breakdown.",
       delay: "delay-400"
     },
     {
-      icon: Zap,
-      title: "Salary Streaming",
-      description: "Employers stream salaries in APT while employees see INR equivalent with real-time conversion.",
+      icon: TrendingUp,
+      title: "Karma Reputation System",
+      description: "Progressive trust scoring through verified work, peer endorsements, and successful job placements with skills-based karma categories.",
       delay: "delay-500"
     },
     {
       icon: Building2,
-      title: "Cross-border Remittance",
-      description: "Send USDT/USDC abroad, convert to APT, recipient sees INR value and withdraws via UPI.",
+      title: "Job Marketplace",
+      description: "Staking mechanism reduces spam applications. Variable staking based on karma scores with company verification and priority matching.",
       delay: "delay-600"
     },
     {
-      icon: TrendingUp,
-      title: "Smart Payments",
-      description: "Recurring payments set in INR but executed in APT with automatic conversion at current rates.",
+      icon: Users,
+      title: "Proof-of-Work Challenges",
+      description: "Anonymous problem-solving for skill verification. Skills tournaments and cross-platform verification for comprehensive talent assessment.",
       delay: "delay-700"
     },
     {
-      icon: Users,
-      title: "Merchant Support",
-      description: "Merchants list prices in INR, customers pay in APT with conversion handled automatically.",
+      icon: Globe,
+      title: "Blockchain Infrastructure",
+      description: "Built on Ethereum/Polygon with Filecoin storage, IPFS metadata, and The Graph Protocol for efficient data querying.",
       delay: "delay-800"
     },
     {
       icon: Smartphone,
-      title: "Payment Splits",
-      description: "Group bill payments and EMI splits shown in INR but settled in APT tokens.",
+      title: "Trust Score Analytics",
+      description: "Real-time reputation tracking with decay mechanisms, peer endorsements, and multi-source karma from verified achievements.",
       delay: "delay-900"
     }
   ];
@@ -131,17 +131,17 @@ const FeaturesSection = () => {
           <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-medium rounded-full bg-muted text-white">
               <span className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
-              Core Differentiators
-              <Zap className="h-2.5 w-2.5 text-green-200/90" />
+              Core Platform Features
+              <Shield className="h-2.5 w-2.5 text-blue-200/90" />
             </span>
           </div>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-foreground mb-6">
-            <span className="text-green-200">payments + RWA + Global</span>
-            <span className="text-white block"> Transactions</span>
+            <span className="text-green-700">Identity + Skills + Trust</span>
+            <span className="text-white block"> Verification System</span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
-            The first smart wallet to blend DeFi capabilities with real-world assets and global payment systems. 
-            EMI options, NFT rewards, and seamless INR integration.
+            The first decentralized platform that eliminates fake profiles in hiring through blockchain verification, 
+            AI-powered skill analysis, and cryptographic proof of credentials.
           </p>
         </div>
         {/* Features Carousel (Mobile Only) */}

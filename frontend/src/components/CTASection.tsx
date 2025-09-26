@@ -44,16 +44,16 @@ const CTASection = () => {
   }, []);
 
   const benefits = [
-    { text: "EMI payments in APT tokens", icon: CreditCard },
-    { text: "NFT rewards & collectibles", icon: CheckCircle },
-    { text: "Real-time INR conversion", icon: TrendingUp },
-    { text: "UPI-crypto bridging", icon: Zap }
+    { text: "Blockchain identity verification", icon: Shield },
+    { text: "AI-powered skill analysis", icon: Zap },
+    { text: "Soulbound credential tokens", icon: CheckCircle },
+    { text: "Karma reputation system", icon: TrendingUp }
   ];
 
   const stats = [
-    { value: "EMI", label: "Crypto Payments" },
-    { value: "NFT", label: "Collectibles" },
-    { value: "INR", label: "Integration" }
+    { value: "85%", label: "Fake Resumes Eliminated" },
+    { value: "100%", label: "Verified Credentials" },
+    { value: "AI", label: "Skill Analysis" }
   ];
 
   return (    <section 
@@ -77,13 +77,13 @@ const CTASection = () => {
               </div>
               
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-foreground mb-6">
-                <span className="text-green-200">Experience Smart Wallet</span>
-                <span className="text-white block">Innovation Today</span>
+                <span className="text-green-700">Start Building Your</span>
+                <span className="text-white block">Trusted Profile Today</span>
               </h2>
               
               <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-balance mb-8">
-                The first wallet to blend <span className="text-green-200">Payments + RWA + Global</span> transactions. Start with EMI options, 
-                collect NFT rewards, and enjoy seamless UPI-crypto bridging.
+                Join the revolution in hiring. Build a <span className="text-green-700">blockchain-verified professional identity</span> that showcases 
+                your real skills and eliminates fake profiles from the job market.
               </p>
             </div>
 

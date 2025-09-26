@@ -16,10 +16,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
-    { name: 'Features', href: '#features' },
+    { name: 'Identity Verification', href: '#features' },
     { name: 'How it Works', href: '#how-it-works' },
-    { name: 'Security', href: '#security' },
-    { name: 'Help Center', href: '#help' },
+    { name: 'Skill Analysis', href: '#features' },
+    { name: 'Job Marketplace', href: '#features' },
     { name: 'Privacy Policy', href: '#privacy' },
     { name: 'Terms of Service', href: '#terms' },
   ];
@@ -39,14 +39,13 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Logo />
-              <span className="text-xl font-semibold text-foreground">Aptex wallet</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-xs">
-              Secure, instant cryptocurrency payments for businesses and individuals worldwide.
+              The first decentralized platform that eliminates fake profiles in hiring through blockchain verification and AI-powered skill analysis.
             </p>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>Bank-level Security</span>
+              <Shield className="h-4 w-4 text-green-600" />
+              <span>Blockchain-Verified Trust</span>
             </div>
           </div>
 
@@ -71,12 +70,12 @@ const Footer = () => {
             <h4 className="text-sm font-semibold text-foreground">Contact</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-primary" />
-                <span>support@aptexwallet.com</span>
+                <Mail className="h-4 w-4 text-green-600" />
+                <span>support@trusthire.xyz</span>
               </div>
               <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>San Francisco, CA</span>
+                <MapPin className="h-4 w-4 text-green-600" />
+                <span>Blockchain Everywhere</span>
               </div>
             </div>
             <div className="flex items-center space-x-3 pt-2">

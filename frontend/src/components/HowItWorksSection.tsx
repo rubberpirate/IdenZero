@@ -30,33 +30,33 @@ const HowItWorksSection = () => {
     {
       icon: UserPlus,
       number: "01",
-      title: "Create Aptos Wallet",
-      description: "Set up your secure Aptos wallet with mnemonic backup. Link your UPI ID for seamless INR-APT bridging.",
-      features: ["Aptos wallet creation", "UPI ID mapping", "Secure backup"],
+      title: "Verify Your Identity",
+      description: "Complete multi-layer identity verification with Aadhaar integration and Self.xyz decentralized identity for cryptographic proof.",
+      features: ["Aadhaar integration", "Self.xyz verification", "KYC compliance"],
       delay: "delay-200"
     },
     {
-      icon: Wallet,
+      icon: Scan,
       number: "02", 
-      title: "Fund with APT",
-      description: "Add Aptos tokens to your wallet. View balance in both APT and real-time INR equivalent.",
-      features: ["APT token funding", "Live INR rates", "Balance tracking"],
+      title: "Authenticate Credentials",
+      description: "Upload certificates for digital signature verification. Receive Soulbound Tokens as immutable proof of achievements.",
+      features: ["Digital signatures", "SBT minting", "Institutional verification"],
       delay: "delay-400"
     },
     {
-      icon: CreditCard,
+      icon: Zap,
       number: "03",
-      title: "Shop with EMI",
-      description: "Buy products with monthly EMI in APT tokens. Smart contracts handle installment tracking and payments.",
-      features: ["EMI payments", "Smart contracts", "Credit scoring"],
+      title: "AI Skill Analysis",
+      description: "Connect GitHub and other platforms for deep skill analysis. Build your verified technology stack proficiency profile.",
+      features: ["GitHub integration", "Multi-platform analysis", "Real-time scoring"],
       delay: "delay-600"
     },
     {
       icon: CheckCircle,
       number: "04",
-      title: "Collect NFT Rewards",
-      description: "Earn NFT collectibles as loyalty rewards. Showcase your collection and trade Aptos-based NFTs.",
-      features: ["NFT rewards", "Loyalty program", "Trading platform"],
+      title: "Build Trust Score",
+      description: "Earn karma through verified work, peer endorsements, and successful placements. Access premium job opportunities.",
+      features: ["Karma system", "Peer endorsements", "Priority matching"],
       delay: "delay-800"
     }
   ];
@@ -120,19 +120,19 @@ const HowItWorksSection = () => {
         <div className={`text-center mb-16 transition-all duration-700 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>          <div className="flex justify-center mb-6">
             <span className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 text-[8px] sm:text-[10px] font-medium rounded-full bg-background/80 backdrop-blur text-white border border-border">
               <span className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
-              Simple Process
-              <ArrowRight className="h-2.5 w-2.5 text-green-200/90" />
+              Verification Process
+              <ArrowRight className="h-2.5 w-2.5 text-blue-200/90" />
             </span>
           </div>
           
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-foreground mb-6">
-            <span className="text-green-200">Your Smart Wallet</span>
-            <span className="text-white block">Journey Starts Here</span>
+            <span className="text-green-700">Build Your Trusted</span>
+            <span className="text-white block">Professional Identity</span>
           </h2>
           
           <p className="hidden md:block text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
-            From wallet creation to NFT rewards - experience the future of payments with EMI options, 
-            real-time INR conversion, and seamless UPI integration.
+            From identity verification to skill analysis - build a blockchain-verified professional profile that 
+            eliminates fake credentials and showcases your real expertise.
           </p>
         </div>
 

@@ -15,74 +15,74 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 const FAQSection = () => {
   const faqs = [
     {
-      category: "EMI & Payments",
-      icon: CreditCard,
-      questions: [
-        {
-          question: "How does crypto-based EMI work?",
-          answer: "You can buy products/services and pay in monthly installments using Aptos tokens. Smart contracts automatically track your installment schedule and handle auto-debits from your wallet. Merchants receive upfront payment via our liquidity pool."
-        },
-        {
-          question: "What is on-chain credit scoring?",
-          answer: "Our smart contracts track your timely repayments and build a credit score on the Aptos blockchain. Good repayment history unlocks better EMI terms and rewards through our loyalty system."
-        },
-        {
-          question: "How does INR integration work?",
-          answer: "We map your UPI ID to your Aptos public key. When you enter an amount in INR, the wallet fetches real-time INR↔APT rates and auto-calculates the equivalent APT for transactions. You see both APT value and INR equivalent."
-        }
-      ]
-    },
-    {
-      category: "NFT & Rewards",
-      icon: Zap,
-      questions: [
-        {
-          question: "How do NFT collectibles work in the wallet?",
-          answer: "Your wallet doubles as an NFT showcase where you can view, store, and trade Aptos-based NFT collectibles. Merchants and partners can issue NFTs as loyalty rewards or proof-of-participation tokens."
-        },
-        {
-          question: "What kind of NFT rewards can I earn?",
-          answer: "Merchants can issue NFT loyalty rewards, proof-of-purchase tokens, or special collectibles. These NFTs can unlock special discounts, exclusive access, or serve as tradeable digital assets within the Aptos ecosystem."
-        },
-        {
-          question: "Can I trade my NFTs?",
-          answer: "Yes! The wallet includes built-in NFT trading capabilities. You can view your collection, trade with other users, and showcase your Aptos-based NFTs all within the same interface."
-        }
-      ]
-    },
-    {
-      category: "Cross-Border & UPI",
-      icon: Globe,
-      questions: [
-        {
-          question: "How does cross-border remittance work?",
-          answer: "Users abroad can send USDT/USDC which gets converted to APT. Recipients in India see the INR value in real-time and can withdraw via UPI integration, making international money transfers seamless."
-        },
-        {
-          question: "What is salary streaming in APT?",
-          answer: "Employers can stream salaries continuously in APT tokens while employees see their balance in INR equivalent with real-time conversion rates. This enables innovative payroll solutions with crypto benefits."
-        },
-        {
-          question: "How do subscriptions work?",
-          answer: "Set up recurring payments in INR that are automatically executed in APT at current conversion rates. Perfect for subscriptions, bills, and regular payments with the benefits of crypto settlement."
-        }
-      ]
-    },
-    {
-      category: "Security & Setup",
+      category: "Identity Verification",
       icon: Shield,
       questions: [
         {
-          question: "How secure is the Aptos wallet?",
-          answer: "Built on Aptos blockchain with enterprise-grade security. You control your private keys with mnemonic backup. Smart contracts are audited and all transactions benefit from Aptos' built-in security features."
+          question: "How does blockchain identity verification work?",
+          answer: "We use multi-layer verification including Aadhaar integration and Self.xyz decentralized identity. Your identity is cryptographically verified and stored on-chain, creating an immutable proof of authenticity that eliminates fake profiles."
         },
         {
-          question: "How do I set up UPI integration?",
-          answer: "During wallet setup, you'll link your UPI ID to your Aptos public key. This enables seamless INR-APT conversion and allows you to bridge traditional payments with crypto seamlessly."
+          question: "What documents can I verify?",
+          answer: "You can verify educational certificates, professional certifications, work experience letters, and other credentials. We use digital signature verification and partner with institutions for direct verification, minting Soulbound Tokens as proof."
         },
         {
-          question: "What if I lose access to my wallet?",
-          answer: "Your mnemonic phrase is your backup key. Store it securely during setup. With your mnemonic, you can recover your wallet, APT balance, and NFT collection on any device. We cannot recover lost mnemonics."
+          question: "How secure is my personal information?",
+          answer: "All personal data is encrypted and stored using zero-knowledge proofs. Only verification status is stored on-chain, not your actual documents. You maintain full control over what information to share with potential employers."
+        }
+      ]
+    },
+    {
+      category: "Skill Analysis & AI",
+      icon: Zap,
+      questions: [
+        {
+          question: "How does AI skill analysis work?",
+          answer: "Our AI analyzes your GitHub repositories, commit history, code quality, and contribution patterns. It also integrates with platforms like Stack Overflow and Kaggle to build a comprehensive skill profile with real-time technology stack proficiency."
+        },
+        {
+          question: "What platforms do you analyze?",
+          answer: "Currently we analyze GitHub repositories, Stack Overflow contributions, and Kaggle competitions. We're expanding to include more developer platforms to provide the most comprehensive skill assessment possible."
+        },
+        {
+          question: "How accurate is the skill scoring?",
+          answer: "Our AI uses advanced algorithms to analyze code complexity, project scope, and contribution frequency. The system continuously learns and updates scores based on recent activity, providing dynamic and accurate skill assessments."
+        }
+      ]
+    },
+    {
+      category: "Karma & Reputation",
+      icon: Users,
+      questions: [
+        {
+          question: "How does the Karma system work?",
+          answer: "Karma is earned through verified work completion (+50-200 points), peer endorsements (+10-30 points), successful job placements (+100 points), and skills tournament performance (+20-100 points). Higher karma unlocks better opportunities and lower application costs."
+        },
+        {
+          question: "Does Karma expire?",
+          answer: "Yes, Karma has time-based decay to encourage continuous activity and ensure scores reflect current capabilities. Active participation in the platform helps maintain and grow your Karma score over time."
+        },
+        {
+          question: "Can I transfer Karma to others?",
+          answer: "No, Karma is non-transferable and tied to your verified identity. However, you can endorse other professionals to help them build their reputation, and verified professionals can sponsor newcomers through reputation staking."
+        }
+      ]
+    },
+    {
+      category: "Job Marketplace",
+      icon: CreditCard,
+      questions: [
+        {
+          question: "How does the staking mechanism work?",
+          answer: "To reduce spam applications, candidates pay a small stake (in ETH/MATIC) when applying for jobs. Higher Karma users pay less. Stakes are returned for quality applications, and successful hires receive bonus rewards."
+        },
+        {
+          question: "How are companies verified?",
+          answer: "Companies must stake tokens to post legitimate job openings and undergo verification processes. This ensures only serious employers can post jobs, creating a trusted marketplace for both sides."
+        },
+        {
+          question: "What makes TrustHire different from other job platforms?",
+          answer: "We eliminate fake profiles through blockchain verification, use AI for accurate skill matching, implement reputation-based filtering, and create economic incentives for quality interactions. It's the first truly trustworthy hiring platform."
         }
       ]
     }
@@ -158,13 +158,13 @@ const FAQSection = () => {
           </div>
           
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tighter text-foreground mb-6">
-            <span className="text-green-200">Everything About</span>
-            <span className="text-white block">Smart Wallet Features</span>
+            <span className="text-green-700">Frequently Asked</span>
+            <span className="text-white block">Questions</span>
           </h2>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto text-balance">
-            Learn about EMI payments, NFT rewards, INR integration, and more. 
-            Your guide to the future of digital payments on Aptos.
+            Learn about identity verification, skill analysis, karma system, and blockchain-powered hiring. 
+            Your guide to trusted professional networking.
           </p>
         </div>
 
