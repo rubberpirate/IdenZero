@@ -164,7 +164,7 @@ const HeroSection = () => {
         {/* Subheading */}
         <p className="text-base xs:text-lg sm:text-lg md:text-xl text-white/90 max-w-sm sm:max-w-2xl md:max-w-3xl mx-auto text-balance leading-relaxed px-2 sm:px-2 md:px-0">
           <span className="sm:hidden block">End fake profiles. Blockchain-verified resumes.</span>
-          <span className="hidden sm:inline">The first decentralized platform that eliminates fake profiles in hiring. Using blockchain verification, AI skill analysis, and cryptographic proofs to connect <span className="text-green-600">genuine talent with legitimate opportunities</span>.</span>
+          <span className="hidden sm:inline">The first decentralized platform that eliminates fake profiles in hiring. Using blockchain verification, AI skill analysis, and cryptographic proofs to connect <span className="text-white">genuine talent with legitimate opportunities</span>.</span>
         </p>
 
         {/* CTA Buttons */}
