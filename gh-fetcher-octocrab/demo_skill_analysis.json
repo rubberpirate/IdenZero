@@ -1,0 +1,178 @@
+{
+  "user_address": "0x742d35Cc6654C49532bEcA5b5b4d8d9f2C2618f8",
+  "github_username": "web3-developer-demo",
+  "overall_score": 87.3,
+  "language_breakdown": {
+    "Rust": {
+      "language": "Rust",
+      "proficiency_score": 156.8,
+      "lines_of_code": 23610,
+      "commit_count": 142,
+      "project_count": 8,
+      "complexity_metrics": {
+        "cyclomatic_complexity": 3.9,
+        "cognitive_complexity": 3.2,
+        "maintainability_index": 88.2,
+        "technical_debt_ratio": 0.08
+      },
+      "weight_multiplier": 2.2
+    },
+    "TypeScript": {
+      "language": "TypeScript",
+      "proficiency_score": 134.7,
+      "lines_of_code": 31250,
+      "commit_count": 205,
+      "project_count": 12,
+      "complexity_metrics": {
+        "cyclomatic_complexity": 2.8,
+        "cognitive_complexity": 2.5,
+        "maintainability_index": 85.7,
+        "technical_debt_ratio": 0.12
+      },
+      "weight_multiplier": 1.7
+    },
+    "Solidity": {
+      "language": "Solidity",
+      "proficiency_score": 187.5,
+      "lines_of_code": 15420,
+      "commit_count": 89,
+      "project_count": 5,
+      "complexity_metrics": {
+        "cyclomatic_complexity": 4.2,
+        "cognitive_complexity": 3.8,
+        "maintainability_index": 82.5,
+        "technical_debt_ratio": 0.15
+      },
+      "weight_multiplier": 2.5
+    },
+    "Python": {
+      "language": "Python",
+      "proficiency_score": 98.4,
+      "lines_of_code": 18730,
+      "commit_count": 156,
+      "project_count": 9,
+      "complexity_metrics": {
+        "cyclomatic_complexity": 2.2,
+        "cognitive_complexity": 2.0,
+        "maintainability_index": 91.3,
+        "technical_debt_ratio": 0.06
+      },
+      "weight_multiplier": 1.5
+    }
+  },
+  "repository_analysis": [
+    {
+      "name": "defi-yield-optimizer",
+      "description": "Advanced DeFi yield farming optimizer with automated strategies",
+      "stars": 234,
+      "forks": 45,
+      "primary_language": "Solidity",
+      "languages": {
+        "Solidity": 8500,
+        "TypeScript": 6200,
+        "JavaScript": 2100
+      },
+      "commit_analysis": {
+        "total_commits": 89,
+        "commit_frequency": 5.2,
+        "average_commit_size": 156.7,
+        "commit_message_quality": 78.5,
+        "bug_fix_ratio": 0.18,
+        "feature_commits": 52,
+        "refactor_commits": 15,
+        "consistency_pattern": 0.73
+      },
+      "architecture_score": 92.0,
+      "documentation_score": 88.0,
+      "testing_coverage": 76.5,
+      "is_web3_project": true,
+      "innovation_score": 89.2
+    },
+    {
+      "name": "cross-chain-bridge",
+      "description": "Multi-chain bridge protocol supporting Ethereum, Polygon, and Arbitrum",
+      "stars": 156,
+      "forks": 32,
+      "primary_language": "Rust",
+      "languages": {
+        "TypeScript": 3800,
+        "Rust": 12400,
+        "Solidity": 4200
+      },
+      "commit_analysis": {
+        "total_commits": 67,
+        "commit_frequency": 4.1,
+        "average_commit_size": 203.4,
+        "commit_message_quality": 85.2,
+        "bug_fix_ratio": 0.15,
+        "feature_commits": 38,
+        "refactor_commits": 12,
+        "consistency_pattern": 0.81
+      },
+      "architecture_score": 95.0,
+      "documentation_score": 92.0,
+      "testing_coverage": 89.3,
+      "is_web3_project": true,
+      "innovation_score": 93.7
+    },
+    {
+      "name": "nft-marketplace-v2",
+      "description": "Next-generation NFT marketplace with advanced features",
+      "stars": 89,
+      "forks": 23,
+      "primary_language": "TypeScript",
+      "languages": {
+        "Solidity": 2800,
+        "CSS": 1900,
+        "TypeScript": 15600
+      },
+      "commit_analysis": {
+        "total_commits": 124,
+        "commit_frequency": 7.8,
+        "average_commit_size": 98.2,
+        "commit_message_quality": 72.3,
+        "bug_fix_ratio": 0.22,
+        "feature_commits": 74,
+        "refactor_commits": 18,
+        "consistency_pattern": 0.65
+      },
+      "architecture_score": 78.0,
+      "documentation_score": 82.0,
+      "testing_coverage": 68.4,
+      "is_web3_project": true,
+      "innovation_score": 76.8
+    },
+    {
+      "name": "ml-trading-bot",
+      "description": "Machine learning powered cryptocurrency trading bot",
+      "stars": 67,
+      "forks": 18,
+      "primary_language": "Python",
+      "languages": {
+        "Python": 9200,
+        "Jupyter Notebook": 2100
+      },
+      "commit_analysis": {
+        "total_commits": 95,
+        "commit_frequency": 3.2,
+        "average_commit_size": 127.8,
+        "commit_message_quality": 69.1,
+        "bug_fix_ratio": 0.25,
+        "feature_commits": 48,
+        "refactor_commits": 22,
+        "consistency_pattern": 0.58
+      },
+      "architecture_score": 72.0,
+      "documentation_score": 75.0,
+      "testing_coverage": 54.2,
+      "is_web3_project": false,
+      "innovation_score": 82.4
+    }
+  ],
+  "consistency_score": 69.2,
+  "complexity_score": 81.5,
+  "collaboration_score": 73.8,
+  "web3_expertise": 91.4,
+  "commit_quality_score": 76.3,
+  "analyzed_at": "2025-09-26T18:25:46.688121864Z"
+}
