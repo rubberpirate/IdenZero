@@ -1,6 +1,6 @@
 use std::env;
 use std::io::{self, Write};
-use trusthire_skill_analyzer::GitHubAnalyzer;
+use trusthire_skill_analyzer::{GitHubAnalyzer, UserProfile};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -42,10 +42,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
 
+        // Optional wallet address
+        println!("💳 Enter wallet address (optional, press Enter to skip):");
+        print!("> ");
+        io::stdout().flush().unwrap();
+        
+        let mut wallet = String::new();
+        io::stdin().read_line(&mut wallet).unwrap();
+        let wallet = wallet.trim();
+        let wallet_address = if wallet.is_empty() { None } else { Some(wallet.to_string()) };
+
+        let profile = UserProfile {
+            github_username: username.to_string(),
+            wallet_address,
+        };
+
         println!("\n🔍 Analyzing GitHub profile: {}", username);
         println!("This may take a few moments...\n");
 
-        match analyzer.analyze(username).await {
+        match analyzer.analyze(profile).await {
             Ok(analysis) => {
                 display_analysis(&analysis);
             }
@@ -65,15 +80,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn display_analysis(analysis: &trusthire_skill_analyzer::SkillAnalysis) {
     println!("📊 Analysis Results");
     println!("==================");
-    println!("👤 User: {}", analysis.username);
-    println!("📅 Analyzed at: {}", analysis.analysis_timestamp.format("%Y-%m-%d %H:%M UTC"));
+    println!("👤 User: {}", analysis.github_username);
+    if let Some(wallet) = &analysis.wallet_address {
+        println!("� Wallet: {}", wallet);
+    }
+    println!("�📅 Analyzed at: {}", analysis.analyzed_at.format("%Y-%m-%d %H:%M UTC"));
     println!("📈 Overall Score: {:.1}/100", analysis.overall_score);
     println!();
 
     println!("🎯 Skill Breakdown:");
-    println!("📊 Code Quality:        {:.1}/100", analysis.code_quality_score);
-    println!("🏗️  Project Quality:     {:.1}/100", analysis.project_quality_score);
-    println!("🚀 Innovation:          {:.1}/100", analysis.innovation_score);
+    println!("📊 Consistency:         {:.1}/100", analysis.consistency_score);
+    println!("🧠 Complexity:          {:.1}/100", analysis.complexity_score);
+    println!("🤝 Collaboration:       {:.1}/100", analysis.collaboration_score);
+    println!("🌐 Web3 Expertise:      {:.1}/100", analysis.web3_expertise);
+    println!("💬 Commit Quality:      {:.1}/100", analysis.commit_quality_score);
     println!("⏱️  Years Active:        {:.1} years", analysis.years_active);
     println!("📁 Total Repositories:  {}", analysis.total_repositories);
     println!();
@@ -85,12 +105,12 @@ fn display_analysis(analysis: &trusthire_skill_analyzer::SkillAnalysis) {
         println!("   No language data found");
     } else {
         let mut sorted_languages: Vec<_> = analysis.language_breakdown.iter().collect();
-        sorted_languages.sort_by(|a, b| b.1.proficiency_score.partial_cmp(&a.1.proficiency_score).unwrap());
+        sorted_languages.sort_by(|a, b| b.1.score.partial_cmp(&a.1.score).unwrap());
         
         for (lang, skill) in sorted_languages.iter().take(10) {
             println!("   {:12} {:.1}/100 ({} projects, ~{} lines)", 
                 lang, 
-                skill.proficiency_score, 
+                skill.score, 
                 skill.project_count,
                 skill.lines_of_code
             );
@@ -98,20 +118,46 @@ fn display_analysis(analysis: &trusthire_skill_analyzer::SkillAnalysis) {
     }
     println!();
 
-    // Technology Skills
-    println!("🔧 Technologies:");
-    println!("-----------------");
-    if analysis.technology_breakdown.is_empty() {
-        println!("   No technology data found");
+    // Repository Analysis
+    println!("📚 Top Repositories:");
+    println!("---------------------");
+    if analysis.repository_analysis.is_empty() {
+        println!("   No repository data found");
     } else {
-        let mut sorted_techs: Vec<_> = analysis.technology_breakdown.iter().collect();
-        sorted_techs.sort_by(|a, b| b.1.proficiency_score.partial_cmp(&a.1.proficiency_score).unwrap());
+        let mut sorted_repos: Vec<_> = analysis.repository_analysis.iter().collect();
+        sorted_repos.sort_by(|a, b| b.stars.cmp(&a.stars));
         
-        for (tech, skill) in sorted_techs.iter().take(10) {
-            println!("   {:15} {:.1}/100 ({} projects)", 
-                tech, 
-                skill.proficiency_score,
-                skill.project_count
+        for repo in sorted_repos.iter().take(5) {
+            let web3_indicator = if repo.is_web3_project { "🌐" } else { "  " };
+            println!("{} {} | ⭐ {} 🍴 {} | {} | Arch: {:.0} Doc: {:.0} Test: {:.0}", 
+                web3_indicator,
+                repo.name, 
+                repo.stars, 
+                repo.forks,
+                repo.primary_language.as_deref().unwrap_or("Unknown"),
+                repo.architecture_score,
+                repo.documentation_score,
+                repo.testing_coverage
+            );
+        }
+    }
+    println!();
+
+    // Languages Skills
+    println!("🔧 Programming Languages:");
+    println!("-------------------------");
+    if analysis.language_breakdown.is_empty() {
+        println!("   No language data found");
+    } else {
+        let mut sorted_langs: Vec<_> = analysis.language_breakdown.iter().collect();
+        sorted_langs.sort_by(|a, b| b.1.score.partial_cmp(&a.1.score).unwrap());
+        
+        for (lang, skill) in sorted_langs.iter().take(10) {
+            println!("   {:15} {:.1}/100 ({} projects, {} commits)", 
+                lang, 
+                skill.score,
+                skill.project_count,
+                skill.commit_count
             );
         }
     }
@@ -149,7 +195,7 @@ fn display_analysis(analysis: &trusthire_skill_analyzer::SkillAnalysis) {
         println!("   🌱 Early-stage developer or limited public activity");
     }
 
-    if analysis.code_quality_score < 50.0 {
+    if analysis.commit_quality_score < 50.0 {
         println!("   💡 Consider improving repository documentation and descriptions");
     }
 
@@ -169,12 +215,12 @@ fn display_analysis(analysis: &trusthire_skill_analyzer::SkillAnalysis) {
         println!("   🏭 Prolific contributor with {} repositories", analysis.total_repositories);
     }
 
-    // Innovation insights
-    if analysis.innovation_score > 70.0 {
-        println!("   🚀 Highly innovative with diverse technology usage");
-    } else if analysis.innovation_score > 40.0 {
-        println!("   🔧 Good technology adoption and recent activity");
+    // Web3 & Innovation insights
+    if analysis.web3_expertise > 70.0 {
+        println!("   🚀 High Web3 expertise with blockchain/DeFi experience");
+    } else if analysis.web3_expertise > 40.0 {
+        println!("   🔧 Some Web3 experience and blockchain technology usage");
     } else {
-        println!("   📚 Focus on expanding technology stack and project diversity");
+        println!("   📚 Limited Web3 exposure - potential for growth in blockchain");
     }
 }
