@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import SimpleDashboard from "./pages/SimpleDashboard";
 import ProfilePage from "./pages/ProfilePage";
+import MintingPage from "./pages/MintingPage";
 import { Button } from "./components/ui/button";
 import VerificationPage from "./components/VerificationPage";
 
@@ -15,7 +16,7 @@ import VerificationPage from "./components/VerificationPage";
 // Layout component that includes the Navbar
 const Layout = () => {
   const location = useLocation();
-  const hideNavbarRoutes = ['/dashboard', '/profile'];
+  const hideNavbarRoutes = ['/dashboard', '/profile', '/minting'];
   const shouldShowNavbar = !hideNavbarRoutes.some(route => location.pathname.startsWith(route));
 
   return (
@@ -41,6 +42,7 @@ const App = () => {
             <Route path="/market" element={<Index />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/minting" element={<MintingPage />} />
             <Route path="/verify" element={<VerificationPage/>}></Route>
             {/* 404 route */}
             <Route path="*" element={
