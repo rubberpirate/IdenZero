@@ -149,7 +149,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
   if (!isConnected) {
     return (
       <div className={`mt-auto pt-6 border-t border-zinc-800/30 ${className}`}>
-        <div className="px-3 py-3 rounded-2xl bg-gradient-to-r from-zinc-800/40 to-zinc-700/40 border border-zinc-700/50 hover:bg-gradient-to-r hover:from-zinc-800/60 hover:to-zinc-700/60 transition-all duration-300 shadow-lg">
+        <div className="px-3 py-3 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 hover:bg-zinc-800/60 transition-all duration-300 shadow-lg">
           <Button
             onClick={connectWallet}
             disabled={isConnecting}
@@ -175,7 +175,7 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
 
   return (
     <div className={`mt-auto pt-6 border-t border-zinc-800/30 ${className}`}>
-      <div className="px-3 py-3 rounded-2xl bg-gradient-to-r from-zinc-800/40 to-zinc-700/40 border border-zinc-700/50 shadow-lg">
+      <div className="px-3 py-3 rounded-2xl bg-zinc-800/40 border border-zinc-700/50 shadow-lg">
         {/* Sophisticated Address Display */}
         <div className="flex items-center justify-between mb-3 min-w-0">
           <div className="flex items-center space-x-2 min-w-0 flex-1">

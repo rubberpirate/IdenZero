@@ -40,8 +40,6 @@ import { jobPortalContract, JobStatus } from '@/utils/contract';
 import { sbtContract, Certificate } from '@/utils/sbtContract';
 import { SBTUNI_CONTRACT_ADDRESS } from '@/config/contract';
 import { TestMinting } from '@/components/TestMinting';
-import { ShootingStars } from '@/components/ui/shooting-stars';
-import { StarsBackground } from '@/components/ui/stars-background';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
@@ -1659,28 +1657,7 @@ const SimpleDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 z-0">
-        <ShootingStars 
-          minSpeed={6}
-          maxSpeed={20}
-          minDelay={1000}
-          maxDelay={3000}
-          starColor="#ffffff"
-          trailColor="#71717a"
-          starWidth={12}
-          starHeight={2}
-        />
-        <StarsBackground 
-          starDensity={0.0003}
-          allStarsTwinkle={true}
-          twinkleProbability={0.8}
-          minTwinkleSpeed={0.3}
-          maxTwinkleSpeed={1.5}
-        />
-      </div>
-      
+    <div className="min-h-screen bg-black flex">
       {/* Sidebar */}
       <motion.div
         initial={{ x: -240 }}
@@ -1711,11 +1688,11 @@ const SimpleDashboard = () => {
                   onClick={() => setActiveSection(item.id)}
                   className={`group w-full flex items-center px-4 py-3 text-left transition-all duration-300 rounded-2xl relative overflow-hidden ${
                     activeSection === item.id
-                      ? 'text-zinc-50 bg-gradient-to-r from-zinc-800 to-zinc-700 shadow-lg border border-zinc-600/20'
+                      ? 'text-zinc-50 bg-zinc-800 shadow-lg border border-zinc-600/20'
                       : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30 border border-transparent hover:border-zinc-700/30'
                   }`}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-r from-zinc-100/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                  <div className={`absolute inset-0 bg-zinc-100/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
                     activeSection === item.id ? 'opacity-100' : ''
                   }`} />
                   <Icon className="h-4 w-4 mr-3 relative z-10" />
@@ -1757,7 +1734,7 @@ const SimpleDashboard = () => {
               </div>
               <button
                 onClick={() => navigate('/profile')}
-                className="px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 bg-gradient-to-r from-zinc-800 to-zinc-700 hover:from-zinc-700 hover:to-zinc-600 rounded-xl border border-zinc-600/30 hover:border-zinc-500/50 transition-all duration-300 shadow-lg"
+                className="px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 bg-zinc-800 hover:bg-zinc-700 rounded-xl border border-zinc-600/30 hover:border-zinc-500/50 transition-all duration-300 shadow-lg"
               >
                 <User className="h-4 w-4 mr-2 inline" />
                 Profile
@@ -1767,8 +1744,7 @@ const SimpleDashboard = () => {
         </header>
 
         {/* Sophisticated Content Area */}
-        <main className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 min-h-[calc(100vh-65px)] relative">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800/20 via-transparent to-transparent"></div>
+        <main className="bg-zinc-950 min-h-[calc(100vh-65px)] relative">
           <div className="relative z-10">
             {renderContent()}
           </div>
