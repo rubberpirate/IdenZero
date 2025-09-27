@@ -1,0 +1,301 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Modern system font stack */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    /* Removed body grid background to avoid conflict */
+    /* background-image:
+      linear-gradient(to right, rgba(200, 200, 200, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(200, 200, 200, 0.07) 1px, transparent 1px);
+    background-size: 30px 30px; */
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+/* Sophisticated grid background */
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 0.3;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 
+    100px 100px,
+    100px 100px,
+    20px 20px,
+    20px 20px;
+  background-position: 
+    -1px -1px,
+    -1px -1px,
+    -1px -1px,
+    -1px -1px;
+}
+
+/* Animated grid dots at intersections */
+.grid-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 100px 100px;
+  animation: grid-pulse 4s ease-in-out infinite;
+}
+
+/* Subtle grid animation */
+@keyframes grid-pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.glass-card {
+  /* Removing glassmorphism for a flatter, more minimalistic look */
+  /* @apply bg-secondary bg-opacity-20 backdrop-blur-lg border border-white border-opacity-10 shadow-lg; */
+  /* Simple card style */
+  @apply bg-secondary border border-border shadow-md;
+}
+
+.crypto-chart {
+  @apply h-[300px] w-full;
+}
+
+/* Removing animations for a more minimalistic feel */
+/*
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+*/
+
+/* Add these styles for the hero section */
+@layer utilities {
+  .cosmic-grid {
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+  
+  .cosmic-glow {
+    position: relative;
+  }
+  
+  .cosmic-glow::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, transparent, rgba(var(--primary), 0.1), transparent);
+    border-radius: inherit;
+    z-index: -1;
+  }
+  /* Custom thin border utilities - now handled by Tailwind config */
+}
+
+/* Custom minimal scrollbar styles */
+.minimal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #666666 transparent;
+  /* Remove default padding/margin if any */
+}
+
+.minimal-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  /* Remove margin to make scrollbar flush with edge */
+  margin: 0;
+}
+
+.minimal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0;
+  /* Remove any padding or border */
+  border: none;
+  padding: 0;
+}
+
+.minimal-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #666666;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+  margin: 0;
+  border: none;
+}
+
+.minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #444444;
+}
+
+.minimal-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Even thinner scrollbar variant */
+.ultra-minimal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #666666 transparent;
+  /* Remove default padding/margin if any */
+}
+
+.ultra-minimal-scrollbar::-webkit-scrollbar {
+  width: 2px;
+  margin: 0;
+}
+
+.ultra-minimal-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.ultra-minimal-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #666666;
+  border-radius: 1px;
+  transition: all 0.2s ease;
+  margin: 0;
+  border: none;
+}
+
+.ultra-minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #444444;
+  width: 3px;
+}
+
+.ultra-minimal-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.custom-thin-outline {
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  box-shadow: 0 2px 24px 0 rgba(0,0,0,0.12);
+}
+
+.qr-success-minimal {
+  border: 1px solid #333;
+  background: #181818;
+  color: #e5e5e5;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.qr-error-minimal {
+  border: 1px solid #333;
+  background: #181818;
+  color: #e5e5e5;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.input-minimal {
+  border: 1px solid #333 !important;
+  background: #181818 !important;
+  color: #e5e5e5 !important;
+  border-radius: 8px !important;
+  font-size: 1rem;
+  font-weight: 400;
+  box-shadow: none !important;
+  transition: border-color 0.2s;
+}
+.input-minimal:focus, .input-minimal:focus-visible {
+  border-color: #888 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 3D Animated Background Animations */
+@keyframes gradient-xy {
+  0%, 100% {
+    transform: translate(0%, 0%);
+  }
+  25% {
+    transform: translate(-5%, 5%);
+  }
+  50% {
+    transform: translate(5%, -5%);
+  }
+  75% {
+    transform: translate(-5%, -5%);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.1);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(15px) scale(0.9);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2);
+  }
+}
+
+.animate-gradient-xy {
+  animation: gradient-xy 15s ease infinite;
+  background-size: 400% 400%;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+  animation-delay: 1s;
+}
