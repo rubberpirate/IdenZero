@@ -75,12 +75,32 @@ const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) 
     }
   };
 
-  const getJobStatusColor = (status: JobStatus) => {
-    return status === JobStatus.Active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400';
+  const getJobStatusColor = (job: Job & { jobId: number }) => {
+    if (job.status === JobStatus.Closed) {
+      return 'bg-red-500/20 text-red-400';
+    }
+    
+    // Check if job is expired (deadline passed)
+    const isExpired = job.deadline * 1000 < Date.now();
+    if (isExpired) {
+      return 'bg-yellow-500/20 text-yellow-400';
+    }
+    
+    return 'bg-green-500/20 text-green-400';
   };
 
-  const getJobStatusText = (status: JobStatus) => {
-    return status === JobStatus.Active ? 'Active' : 'Closed';
+  const getJobStatusText = (job: Job & { jobId: number }) => {
+    if (job.status === JobStatus.Closed) {
+      return 'Closed';
+    }
+    
+    // Check if job is expired (deadline passed)
+    const isExpired = job.deadline * 1000 < Date.now();
+    if (isExpired) {
+      return 'Expired';
+    }
+    
+    return 'Active';
   };
 
   if (loading) {
@@ -138,14 +158,36 @@ const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) 
 
   return (
     <div className="space-y-4">
+      {/* Status Legend */}
+      <Card className="bg-blue-500/5 border-blue-500/20 p-4">
+        <div className="flex items-center mb-2">
+          <AlertCircle className="w-4 h-4 text-blue-400 mr-2" />
+          <span className="text-blue-400 font-medium text-sm">Job Status Guide</span>
+        </div>
+        <div className="flex flex-wrap gap-4 text-xs">
+          <div className="flex items-center">
+            <Badge className="bg-green-500/20 text-green-400 text-xs mr-2">Active</Badge>
+            <span className="text-gray-400">Job is open for applications</span>
+          </div>
+          <div className="flex items-center">
+            <Badge className="bg-yellow-500/20 text-yellow-400 text-xs mr-2">Expired</Badge>
+            <span className="text-gray-400">Deadline has passed</span>
+          </div>
+          <div className="flex items-center">
+            <Badge className="bg-red-500/20 text-red-400 text-xs mr-2">Closed</Badge>
+            <span className="text-gray-400">Manually closed by employer</span>
+          </div>
+        </div>
+      </Card>
+      
       {jobs.map((job) => (
         <Card key={job.jobId} className="bg-white/5 border-gray-800 p-6 hover:bg-white/10 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h3 className="text-xl font-semibold text-white">{job.title}</h3>
-                <Badge className={`text-xs ${getJobStatusColor(job.status)}`}>
-                  {getJobStatusText(job.status)}
+                <Badge className={`text-xs ${getJobStatusColor(job)}`}>
+                  {getJobStatusText(job)}
                 </Badge>
               </div>
               
@@ -184,7 +226,16 @@ const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) 
                 
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 mr-1" />
-                  Deadline: {formatDeadline(job.deadline)}
+                  <span className={
+                    job.deadline * 1000 < Date.now() 
+                      ? 'text-red-400' 
+                      : job.deadline * 1000 < Date.now() + (24 * 60 * 60 * 1000) 
+                        ? 'text-yellow-400' 
+                        : 'text-gray-400'
+                  }>
+                    Deadline: {formatDeadline(job.deadline)}
+                    {job.deadline * 1000 < Date.now() && ' (Expired)'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -209,7 +260,7 @@ const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) 
                 View
               </Button>
               
-              {job.status === JobStatus.Active && (
+              {job.status === JobStatus.Active && job.deadline * 1000 > Date.now() && (
                 <Button
                   variant="outline"
                   size="sm"

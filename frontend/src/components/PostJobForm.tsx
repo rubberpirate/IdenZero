@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,9 +22,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
-  X
+  X,
+  UserPlus,
+  AlertCircle
 } from 'lucide-react';
-import { jobPortalContract, UserType } from '@/utils/contract';
+import { jobPortalContract, UserType, type User } from '@/utils/contract';
 
 interface JobFormData {
   // Step 1: Basic Info
@@ -53,6 +55,15 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<number | null>(null);
+  const [isCheckingUser, setIsCheckingUser] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userAddress, setUserAddress] = useState<string | null>(null);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [registrationData, setRegistrationData] = useState({
+    name: '',
+    email: '',
+    userType: UserType.Employer
+  });
   
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
@@ -66,9 +77,83 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
     metadataHash: ''
   });
 
+  // Check user registration status on component mount
+  useEffect(() => {
+    const checkUserRegistration = async () => {
+      setIsCheckingUser(true);
+      setError(null);
+      
+      try {
+        if (window.ethereum) {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' }) as string[];
+          if (accounts.length > 0) {
+            const address = accounts[0];
+            setUserAddress(address);
+            
+            const user = await jobPortalContract.getUser(address);
+            setCurrentUser(user);
+            
+            if (!user) {
+              setShowRegistration(true);
+            } else if (user.userType !== UserType.Employer && user.userType !== UserType.Both) {
+              setError('Only employers can post jobs. Please register as an employer or update your account type.');
+            }
+          } else {
+            setError('Please connect your wallet to post a job.');
+          }
+        } else {
+          setError('MetaMask is not installed. Please install MetaMask to continue.');
+        }
+      } catch (error) {
+        console.error('Error checking user registration:', error);
+        setError('Failed to check user registration status.');
+      } finally {
+        setIsCheckingUser(false);
+      }
+    };
+
+    checkUserRegistration();
+  }, []);
+
   const updateFormData = (field: keyof JobFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError(null);
+  };
+
+  const handleRegistration = async () => {
+    if (!registrationData.name || !registrationData.email) {
+      setError('Please fill in all registration fields.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const tx = await jobPortalContract.registerUser(
+        registrationData.name,
+        registrationData.email,
+        registrationData.userType
+      );
+
+      if (!tx) {
+        throw new Error('Failed to register user');
+      }
+
+      await tx.wait();
+      
+      // Refresh user data
+      if (userAddress) {
+        const user = await jobPortalContract.getUser(userAddress);
+        setCurrentUser(user);
+        setShowRegistration(false);
+      }
+    } catch (error) {
+      console.error('Failed to register user:', error);
+      setError(error instanceof Error ? error.message : 'Failed to register user');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const validateStep = (step: number): boolean => {
@@ -375,88 +460,196 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
     </div>
   );
 
+  // Render registration form
+  const renderRegistrationForm = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-6">
+        <UserPlus className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-white mb-2">Register as Employer</h3>
+        <p className="text-gray-400">You need to register first before posting jobs</p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="reg-name" className="text-white mb-2 block">
+            Full Name *
+          </Label>
+          <Input
+            id="reg-name"
+            value={registrationData.name}
+            onChange={(e) => setRegistrationData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder="Enter your full name"
+            className="bg-white/5 border-gray-700 text-white"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="reg-email" className="text-white mb-2 block">
+            Email Address *
+          </Label>
+          <Input
+            id="reg-email"
+            type="email"
+            value={registrationData.email}
+            onChange={(e) => setRegistrationData(prev => ({ ...prev, email: e.target.value }))}
+            placeholder="Enter your email address"
+            className="bg-white/5 border-gray-700 text-white"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="reg-usertype" className="text-white mb-2 block">
+            Account Type *
+          </Label>
+          <Select onValueChange={(value) => setRegistrationData(prev => ({ ...prev, userType: parseInt(value) as UserType }))}>
+            <SelectTrigger className="bg-white/5 border-gray-700 text-white">
+              <SelectValue placeholder="Select account type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={UserType.Employer.toString()}>Employer</SelectItem>
+              <SelectItem value={UserType.Both.toString()}>Both (Employer & Job Seeker)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="flex space-x-3">
+        <Button
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleRegistration}
+          disabled={isSubmitting || !registrationData.name || !registrationData.email}
+          className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
+        >
+          {isSubmitting ? (
+            <>
+              <Clock className="w-4 h-4 mr-2 animate-spin" />
+              Registering...
+            </>
+          ) : (
+            <>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Register
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Show loading state while checking user
+  if (isCheckingUser) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Card className="bg-white/5 border-gray-800 p-8">
+          <div className="text-center">
+            <Clock className="w-8 h-8 text-blue-400 mx-auto mb-4 animate-spin" />
+            <h3 className="text-lg font-semibold text-white mb-2">Checking Registration Status</h3>
+            <p className="text-gray-400">Please wait while we verify your account...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       <Card className="bg-white/5 border-gray-800 p-8">
-        {renderStepIndicator()}
+        {!showRegistration && renderStepIndicator()}
 
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
             <div className="flex items-center">
-              <X className="w-5 h-5 text-red-400 mr-2" />
+              <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
               <p className="text-red-400">{error}</p>
             </div>
           </div>
         )}
 
-        {currentStep === 1 && renderStep1()}
-        {currentStep === 2 && renderStep2()}
-        {currentStep === 3 && renderStep3()}
+        {showRegistration ? (
+          renderRegistrationForm()
+        ) : (
+          <>
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+          </>
+        )}
 
-        <div className="flex justify-between mt-8">
-          <div>
-            {currentStep > 1 && (
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                disabled={isSubmitting}
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
-              >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-            )}
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
-            >
-              Cancel
-            </Button>
-
-            {currentStep < 3 ? (
-              <Button
-                onClick={handleNext}
-                disabled={!validateStep(currentStep) || isSubmitting}
-                className="bg-white text-black hover:bg-gray-200"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleSubmit}
-                disabled={!validateStep(1) || isSubmitting}
-                className="bg-white text-black hover:bg-gray-200"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Clock className="w-4 h-4 mr-2 animate-spin" />
-                    Posting Job...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Post Job
-                  </>
+        {!showRegistration && (
+          <>
+            <div className="flex justify-between mt-8">
+              <div>
+                {currentStep > 1 && (
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={isSubmitting}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
                 )}
-              </Button>
-            )}
-          </div>
-        </div>
+              </div>
 
-        {/* Step Help Text */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-400">
-            {currentStep === 1 && "Step 1 of 3: Provide basic job information"}
-            {currentStep === 2 && "Step 2 of 3: Add job category and requirements"}
-            {currentStep === 3 && "Step 3 of 3: Complete with salary and job type details"}
-          </p>
-        </div>
+              <div className="flex space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                >
+                  Cancel
+                </Button>
+
+                {currentStep < 3 ? (
+                  <Button
+                    onClick={handleNext}
+                    disabled={!validateStep(currentStep) || isSubmitting}
+                    className="bg-white text-black hover:bg-gray-200"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!validateStep(1) || isSubmitting}
+                    className="bg-white text-black hover:bg-gray-200"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Clock className="w-4 h-4 mr-2 animate-spin" />
+                        Posting Job...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Post Job
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Step Help Text */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-400">
+                {currentStep === 1 && "Step 1 of 3: Provide basic job information"}
+                {currentStep === 2 && "Step 2 of 3: Add job category and requirements"}
+                {currentStep === 3 && "Step 3 of 3: Complete with salary and job type details"}
+              </p>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );
