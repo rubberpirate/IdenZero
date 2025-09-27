@@ -299,3 +299,67 @@
   animation: pulse-slow 4s ease-in-out infinite;
   animation-delay: 1s;
 }
+
+/* Verification Page Specific Styles */
+.verification-qr-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-qr-container canvas,
+.verification-qr-container img {
+  border-radius: 8px;
+  background: white !important;
+}
+
+/* Ensure QR code is always visible with proper contrast */
+.qr-code-wrapper {
+  background: white !important;
+  padding: 8px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Loading animation for verification */
+@keyframes verification-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.verification-loading {
+  animation: verification-pulse 2s ease-in-out infinite;
+}
+
+/* Force QR code to have proper background regardless of theme */
+.qr-code-wrapper canvas,
+.qr-code-wrapper img,
+.qr-code-wrapper svg {
+  background-color: white !important;
+  border: 2px solid #f8f9fa !important;
+}
+
+/* Self QR component specific overrides */
+[class*="self"] canvas,
+[class*="self"] img,
+[class*="qr"] canvas,
+[class*="qr"] img {
+  background: white !important;
+  filter: none !important;
+}
+
+/* Additional safety for dark theme QR visibility */
+@media (prefers-color-scheme: dark) {
+  .qr-code-wrapper {
+    background: white !important;
+    box-shadow: 0 0 0 4px white !important;
+  }
+}
