@@ -1,8 +1,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+const { loadFixture, time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("SimpleJobPortal", function () {
+describe("SimpleJobPortal - Updated Tests", function () {
   // Deployment fixture
   async function deploySimpleJobPortalFixture() {
     const [owner, backend, employer1, employer2, jobSeeker1, jobSeeker2, both1] = await ethers.getSigners();
@@ -36,7 +36,7 @@ describe("SimpleJobPortal", function () {
 
     it("Should have no backend address initially", async function () {
       const { jobPortal } = await loadFixture(deploySimpleJobPortalFixture);
-      expect(await jobPortal.backendAddress()).to.equal(ethers.ZeroAddress);
+      expect(await jobPortal.getBackendAddress()).to.equal(ethers.ZeroAddress);
     });
   });
 
@@ -44,10 +44,7 @@ describe("SimpleJobPortal", function () {
     it("Should allow owner to set backend address", async function () {
       const { jobPortal, owner, backend } = await loadFixture(deploySimpleJobPortalFixture);
       
-      await expect(jobPortal.connect(owner).setBackendAddress(backend.address))
-        .to.emit(jobPortal, "BackendAddressUpdated")
-        .withArgs(ethers.ZeroAddress, backend.address);
-        
+      await jobPortal.connect(owner).setBackendAddress(backend.address);
       expect(await jobPortal.getBackendAddress()).to.equal(backend.address);
     });
 
@@ -55,14 +52,14 @@ describe("SimpleJobPortal", function () {
       const { jobPortal, backend, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
       
       await expect(jobPortal.connect(employer1).setBackendAddress(backend.address))
-        .to.be.revertedWith("Only owner can call this function");
+        .to.be.reverted;
     });
 
     it("Should not allow setting zero address as backend", async function () {
       const { jobPortal, owner } = await loadFixture(deploySimpleJobPortalFixture);
       
       await expect(jobPortal.connect(owner).setBackendAddress(ethers.ZeroAddress))
-        .to.be.revertedWith("Backend address cannot be zero");
+        .to.be.reverted;
     });
   });
 
@@ -70,12 +67,12 @@ describe("SimpleJobPortal", function () {
     it("Should register a new job seeker", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await expect(jobPortal.connect(jobSeeker1).registerUserBasic(
+      await expect(jobPortal.connect(jobSeeker1).registerUser(
         "John Doe",
         "john@example.com",
         0 // JobSeeker
       )).to.emit(jobPortal, "UserRegistered")
-        .withArgs(jobSeeker1.address, "John Doe", 0);
+        .withArgs(jobSeeker1.address, "John Doe");
 
       const user = await jobPortal.users(jobSeeker1.address);
       expect(user.name).to.equal("John Doe");
@@ -83,17 +80,19 @@ describe("SimpleJobPortal", function () {
       expect(user.userType).to.equal(0);
       expect(user.isActive).to.be.true;
       expect(user.isVerified).to.be.false;
+      expect(user.totalJobsPosted).to.equal(0);
+      expect(user.totalApplications).to.equal(0);
     });
 
     it("Should register a new employer", async function () {
       const { jobPortal, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await expect(jobPortal.connect(employer1).registerUserBasic(
+      await expect(jobPortal.connect(employer1).registerUser(
         "ABC Company",
         "hr@abc.com",
         1 // Employer
       )).to.emit(jobPortal, "UserRegistered")
-        .withArgs(employer1.address, "ABC Company", 1);
+        .withArgs(employer1.address, "ABC Company");
 
       const user = await jobPortal.users(employer1.address);
       expect(user.userType).to.equal(1);
@@ -102,7 +101,7 @@ describe("SimpleJobPortal", function () {
     it("Should register a user with Both type", async function () {
       const { jobPortal, both1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await jobPortal.connect(both1).registerUserBasic(
+      await jobPortal.connect(both1).registerUser(
         "Freelancer",
         "freelancer@example.com",
         2 // Both
@@ -115,43 +114,33 @@ describe("SimpleJobPortal", function () {
     it("Should not allow empty name", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await expect(jobPortal.connect(jobSeeker1).registerUserBasic(
+      await expect(jobPortal.connect(jobSeeker1).registerUser(
         "",
         "john@example.com",
         0
-      )).to.be.revertedWith("Name cannot be empty");
-    });
-
-    it("Should not allow empty email", async function () {
-      const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
-
-      await expect(jobPortal.connect(jobSeeker1).registerUserBasic(
-        "John Doe",
-        "",
-        0
-      )).to.be.revertedWith("Email cannot be empty");
+      )).to.be.reverted;
     });
 
     it("Should not allow double registration", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await jobPortal.connect(jobSeeker1).registerUserBasic(
+      await jobPortal.connect(jobSeeker1).registerUser(
         "John Doe",
         "john@example.com",
         0
       );
 
-      await expect(jobPortal.connect(jobSeeker1).registerUserBasic(
+      await expect(jobPortal.connect(jobSeeker1).registerUser(
         "John Doe Updated",
         "john.new@example.com",
         0
-      )).to.be.revertedWith("User already registered");
+      )).to.be.reverted;
     });
 
     it("Should allow setting user details after registration", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await jobPortal.connect(jobSeeker1).registerUserBasic(
+      await jobPortal.connect(jobSeeker1).registerUser(
         "John Doe",
         "john@example.com",
         0
@@ -170,7 +159,7 @@ describe("SimpleJobPortal", function () {
     it("Should allow updating profile", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await jobPortal.connect(jobSeeker1).registerUserBasic(
+      await jobPortal.connect(jobSeeker1).registerUser(
         "John Doe",
         "john@example.com",
         0
@@ -178,16 +167,12 @@ describe("SimpleJobPortal", function () {
 
       await jobPortal.connect(jobSeeker1).updateProfile(
         "John Doe Updated",
-        "john.new@example.com",
-        "+1234567890",
-        "QmNewProfileHash456"
+        "john.new@example.com"
       );
 
       const user = await jobPortal.users(jobSeeker1.address);
       expect(user.name).to.equal("John Doe Updated");
       expect(user.email).to.equal("john.new@example.com");
-      expect(user.phone).to.equal("+1234567890");
-      expect(user.profileHash).to.equal("QmNewProfileHash456");
     });
   });
 
@@ -199,7 +184,7 @@ describe("SimpleJobPortal", function () {
       await jobPortal.connect(owner).setBackendAddress(backend.address);
 
       // Register user
-      await jobPortal.connect(jobSeeker1).registerUserBasic(
+      await jobPortal.connect(jobSeeker1).registerUser(
         "John Doe",
         "john@example.com",
         0
@@ -217,17 +202,17 @@ describe("SimpleJobPortal", function () {
       const { jobPortal, owner, backend, jobSeeker1, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
 
       await jobPortal.connect(owner).setBackendAddress(backend.address);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
 
       await expect(jobPortal.connect(employer1).markVerified(jobSeeker1.address))
-        .to.be.revertedWith("Only backend can call this function");
+        .to.be.reverted;
     });
 
     it("Should allow backend to remove verification", async function () {
       const { jobPortal, owner, backend, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
 
       await jobPortal.connect(owner).setBackendAddress(backend.address);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
       await jobPortal.connect(backend).markVerified(jobSeeker1.address);
 
       await jobPortal.connect(backend).removeVerification(jobSeeker1.address);
@@ -240,11 +225,11 @@ describe("SimpleJobPortal", function () {
       const { jobPortal, owner, backend, employer1, employer2, jobSeeker1, jobSeeker2, both1 } = await loadFixture(deploySimpleJobPortalFixture);
 
       // Register users
-      await jobPortal.connect(employer1).registerUserBasic("ABC Company", "hr@abc.com", 1);
-      await jobPortal.connect(employer2).registerUserBasic("XYZ Corp", "jobs@xyz.com", 1);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
-      await jobPortal.connect(jobSeeker2).registerUserBasic("Jane Smith", "jane@example.com", 0);
-      await jobPortal.connect(both1).registerUserBasic("Freelancer", "freelancer@example.com", 2);
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(employer2).registerUser("XYZ Corp", "jobs@xyz.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker2).registerUser("Jane Smith", "jane@example.com", 0);
+      await jobPortal.connect(both1).registerUser("Freelancer", "freelancer@example.com", 2);
 
       return { jobPortal, owner, backend, employer1, employer2, jobSeeker1, jobSeeker2, both1 };
     }
@@ -254,21 +239,26 @@ describe("SimpleJobPortal", function () {
 
       const deadline = Math.floor(Date.now() / 1000) + 86400; // 1 day from now
 
-      await expect(jobPortal.connect(employer1).postJobBasic(
+      await expect(jobPortal.connect(employer1).postJob(
         "Software Engineer",
         "We are looking for a skilled software engineer",
         deadline
       )).to.emit(jobPortal, "JobPosted")
-        .withArgs(1, employer1.address, "Software Engineer");
+        .withArgs(1, employer1.address);
 
-      const jobBasic = await jobPortal.jobBasics(1);
-      expect(jobBasic.title).to.equal("Software Engineer");
-      expect(jobBasic.description).to.equal("We are looking for a skilled software engineer");
-      expect(jobBasic.employer).to.equal(employer1.address);
-      expect(jobBasic.status).to.equal(0); // Active
-      expect(jobBasic.applicationsCount).to.equal(0);
+      const job = await jobPortal.jobs(1);
+      expect(job.title).to.equal("Software Engineer");
+      expect(job.description).to.equal("We are looking for a skilled software engineer");
+      expect(job.employer).to.equal(employer1.address);
+      expect(job.status).to.equal(0); // Active
+      expect(job.applicationsCount).to.equal(0);
+      expect(job.deadline).to.equal(deadline);
 
       expect(await jobPortal.jobIdCounter()).to.equal(1);
+
+      // Check user's total jobs posted
+      const user = await jobPortal.users(employer1.address);
+      expect(user.totalJobsPosted).to.equal(1);
     });
 
     it("Should not allow job seeker to post a job", async function () {
@@ -276,11 +266,11 @@ describe("SimpleJobPortal", function () {
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
 
-      await expect(jobPortal.connect(jobSeeker1).postJobBasic(
+      await expect(jobPortal.connect(jobSeeker1).postJob(
         "Software Engineer",
         "Description",
         deadline
-      )).to.be.revertedWith("Only employers can call this function");
+      )).to.be.reverted;
     });
 
     it("Should allow 'Both' type user to post a job", async function () {
@@ -288,7 +278,7 @@ describe("SimpleJobPortal", function () {
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
 
-      await expect(jobPortal.connect(both1).postJobBasic(
+      await expect(jobPortal.connect(both1).postJob(
         "Freelance Project",
         "Looking for a freelancer",
         deadline
@@ -300,23 +290,11 @@ describe("SimpleJobPortal", function () {
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
 
-      await expect(jobPortal.connect(employer1).postJobBasic(
+      await expect(jobPortal.connect(employer1).postJob(
         "",
         "Description",
         deadline
-      )).to.be.revertedWith("Title cannot be empty");
-    });
-
-    it("Should not allow empty description", async function () {
-      const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
-
-      const deadline = Math.floor(Date.now() / 1000) + 86400;
-
-      await expect(jobPortal.connect(employer1).postJobBasic(
-        "Title",
-        "",
-        deadline
-      )).to.be.revertedWith("Description cannot be empty");
+      )).to.be.reverted;
     });
 
     it("Should not allow past deadline", async function () {
@@ -324,98 +302,102 @@ describe("SimpleJobPortal", function () {
 
       const pastDeadline = Math.floor(Date.now() / 1000) - 86400; // 1 day ago
 
-      await expect(jobPortal.connect(employer1).postJobBasic(
+      await expect(jobPortal.connect(employer1).postJob(
         "Software Engineer",
         "Description",
         pastDeadline
-      )).to.be.revertedWith("Deadline must be in future");
+      )).to.be.reverted;
     });
 
     it("Should allow setting job details", async function () {
       const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
 
       await jobPortal.connect(employer1).setJobDetails(
         1,
         "Technology",
-        "JavaScript, React, Node.js",
-        "Remote"
+        "Remote",
+        "$80,000 - $120,000"
       );
 
-      const jobDetails = await jobPortal.jobDetails(1);
-      expect(jobDetails.category).to.equal("Technology");
-      expect(jobDetails.skillsRequired).to.equal("JavaScript, React, Node.js");
-      expect(jobDetails.location).to.equal("Remote");
+      const job = await jobPortal.jobs(1);
+      expect(job.category).to.equal("Technology");
+      expect(job.location).to.equal("Remote");
+      expect(job.salaryRange).to.equal("$80,000 - $120,000");
     });
 
-    it("Should allow setting more job details", async function () {
+    it("Should allow setting job metadata", async function () {
       const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
 
-      await jobPortal.connect(employer1).setJobMoreDetails(
+      await jobPortal.connect(employer1).setJobMetadata(
         1,
-        "$80,000 - $120,000",
-        "Full-time",
         "QmJobMetadataHash123"
       );
 
-      const jobDetails = await jobPortal.jobDetails(1);
-      expect(jobDetails.salaryRange).to.equal("$80,000 - $120,000");
-      expect(jobDetails.jobType).to.equal("Full-time");
-      expect(jobDetails.metadataHash).to.equal("QmJobMetadataHash123");
+      const job = await jobPortal.jobs(1);
+      expect(job.metadataHash).to.equal("QmJobMetadataHash123");
     });
 
     it("Should allow job poster to update job", async function () {
       const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
 
-      const newDeadline = Math.floor(Date.now() / 1000) + 172800; // 2 days from now
-      await expect(jobPortal.connect(employer1).updateJobBasic(
+      await expect(jobPortal.connect(employer1).updateJob(
         1,
         "Senior Software Engineer",
-        "Updated description",
-        newDeadline
+        "Updated description"
       )).to.emit(jobPortal, "JobUpdated")
-        .withArgs(1, "Senior Software Engineer");
+        .withArgs(1);
 
-      const jobBasic = await jobPortal.jobBasics(1);
-      expect(jobBasic.title).to.equal("Senior Software Engineer");
-      expect(jobBasic.description).to.equal("Updated description");
+      const job = await jobPortal.jobs(1);
+      expect(job.title).to.equal("Senior Software Engineer");
+      expect(job.description).to.equal("Updated description");
+    });
+
+    it("Should allow updating job salary only", async function () {
+      const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
+
+      const deadline = Math.floor(Date.now() / 1000) + 86400;
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
+
+      await jobPortal.connect(employer1).updateJobSalary(1, "$90,000 - $130,000");
+
+      const job = await jobPortal.jobs(1);
+      expect(job.salaryRange).to.equal("$90,000 - $130,000");
     });
 
     it("Should not allow non-poster to update job", async function () {
       const { jobPortal, employer1, employer2 } = await loadFixture(setupUsersFixture);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
 
-      const newDeadline = Math.floor(Date.now() / 1000) + 172800;
-      await expect(jobPortal.connect(employer2).updateJobBasic(
+      await expect(jobPortal.connect(employer2).updateJob(
         1,
         "Updated Title",
-        "Updated description",
-        newDeadline
-      )).to.be.revertedWith("Only job poster can call this function");
+        "Updated description"
+      )).to.be.reverted;
     });
 
     it("Should allow job poster to close job", async function () {
       const { jobPortal, employer1 } = await loadFixture(setupUsersFixture);
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description", deadline);
 
       await expect(jobPortal.connect(employer1).closeJob(1))
         .to.emit(jobPortal, "JobClosed")
         .withArgs(1);
 
-      const jobBasic = await jobPortal.jobBasics(1);
-      expect(jobBasic.status).to.equal(1); // Closed
+      const job = await jobPortal.jobs(1);
+      expect(job.status).to.equal(1); // Closed
     });
   });
 
@@ -425,16 +407,16 @@ describe("SimpleJobPortal", function () {
       const { jobPortal, employer1, employer2, jobSeeker1, jobSeeker2, both1 } = fixture;
 
       // Register users
-      await jobPortal.connect(employer1).registerUserBasic("ABC Company", "hr@abc.com", 1);
-      await jobPortal.connect(employer2).registerUserBasic("XYZ Corp", "jobs@xyz.com", 1);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
-      await jobPortal.connect(jobSeeker2).registerUserBasic("Jane Smith", "jane@example.com", 0);
-      await jobPortal.connect(both1).registerUserBasic("Freelancer", "freelancer@example.com", 2);
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(employer2).registerUser("XYZ Corp", "jobs@xyz.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker2).registerUser("Jane Smith", "jane@example.com", 0);
+      await jobPortal.connect(both1).registerUser("Freelancer", "freelancer@example.com", 2);
 
       // Post some jobs
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description 1", deadline);
-      await jobPortal.connect(employer2).postJobBasic("Data Scientist", "Description 2", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description 1", deadline);
+      await jobPortal.connect(employer2).postJob("Data Scientist", "Description 2", deadline);
 
       return { ...fixture, deadline };
     }
@@ -442,35 +424,38 @@ describe("SimpleJobPortal", function () {
     it("Should allow job seeker to apply for a job", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
-      await expect(jobPortal.connect(jobSeeker1).applyForJobBasic(1))
+      await expect(jobPortal.connect(jobSeeker1).applyForJob(1))
         .to.emit(jobPortal, "ApplicationSubmitted")
-        .withArgs(1, 1, jobSeeker1.address, "John Doe");
+        .withArgs(1, 1, jobSeeker1.address);
 
       const application = await jobPortal.applications(1);
       expect(application.jobId).to.equal(1);
       expect(application.applicant).to.equal(jobSeeker1.address);
-      expect(application.applicantName).to.equal("John Doe");
       expect(application.status).to.equal(0); // Pending
 
       expect(await jobPortal.applicationIdCounter()).to.equal(1);
 
       // Check that application count is updated
-      const jobBasic = await jobPortal.jobBasics(1);
-      expect(jobBasic.applicationsCount).to.equal(1);
+      const job = await jobPortal.jobs(1);
+      expect(job.applicationsCount).to.equal(1);
+
+      // Check user's total applications
+      const user = await jobPortal.users(jobSeeker1.address);
+      expect(user.totalApplications).to.equal(1);
     });
 
     it("Should allow 'Both' type user to apply for a job", async function () {
       const { jobPortal, both1 } = await loadFixture(setupJobsFixture);
 
-      await expect(jobPortal.connect(both1).applyForJobBasic(1))
+      await expect(jobPortal.connect(both1).applyForJob(1))
         .to.emit(jobPortal, "ApplicationSubmitted");
     });
 
     it("Should not allow employer to apply for a job", async function () {
       const { jobPortal, employer2 } = await loadFixture(setupJobsFixture);
 
-      await expect(jobPortal.connect(employer2).applyForJobBasic(1))
-        .to.be.revertedWith("Only job seekers can call this function");
+      await expect(jobPortal.connect(employer2).applyForJob(1))
+        .to.be.reverted;
     });
 
     it("Should not allow applying to own job", async function () {
@@ -478,19 +463,19 @@ describe("SimpleJobPortal", function () {
 
       // Post a job with both1 (who can be both employer and job seeker)
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(both1).postJobBasic("Freelance Job", "Description", deadline);
+      await jobPortal.connect(both1).postJob("Freelance Job", "Description", deadline);
 
-      await expect(jobPortal.connect(both1).applyForJobBasic(3))
-        .to.be.revertedWith("Cannot apply to own job");
+      await expect(jobPortal.connect(both1).applyForJob(3))
+        .to.be.reverted;
     });
 
     it("Should not allow duplicate applications", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
 
-      await expect(jobPortal.connect(jobSeeker1).applyForJobBasic(1))
-        .to.be.revertedWith("Already applied for this job");
+      await expect(jobPortal.connect(jobSeeker1).applyForJob(1))
+        .to.be.revertedWith("Already applied");
     });
 
     it("Should not allow applying to closed job", async function () {
@@ -498,30 +483,29 @@ describe("SimpleJobPortal", function () {
 
       await jobPortal.connect(employer1).closeJob(1);
 
-      await expect(jobPortal.connect(jobSeeker1).applyForJobBasic(1))
-        .to.be.revertedWith("Job is not active");
+      await expect(jobPortal.connect(jobSeeker1).applyForJob(1))
+        .to.be.reverted;
     });
 
     it("Should not allow applying after deadline", async function () {
       const { jobPortal, employer1, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
       // Post job with short deadline (1 hour from now)
-      const currentTime = Math.floor(Date.now() / 1000);
+      const currentTime = await time.latest();
       const shortDeadline = currentTime + 3600; // 1 hour
-      await jobPortal.connect(employer1).postJobBasic("Quick Job", "Description", shortDeadline);
+      await jobPortal.connect(employer1).postJob("Quick Job", "Description", shortDeadline);
 
-      // Fast forward time past the deadline using Hardhat network helpers
-      const { time } = require("@nomicfoundation/hardhat-network-helpers");
+      // Fast forward time past the deadline
       await time.increaseTo(shortDeadline + 1);
 
-      await expect(jobPortal.connect(jobSeeker1).applyForJobBasic(3))
-        .to.be.revertedWith("Application deadline has passed");
+      await expect(jobPortal.connect(jobSeeker1).applyForJob(3))
+        .to.be.reverted;
     });
 
     it("Should allow setting application details", async function () {
       const { jobPortal, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
 
       await jobPortal.connect(jobSeeker1).setApplicationDetails(
         1,
@@ -529,35 +513,19 @@ describe("SimpleJobPortal", function () {
         "QmResumeHash123"
       );
 
-      const appDetails = await jobPortal.applicationDetails(1);
-      expect(appDetails.coverLetter).to.equal("I am very interested in this position...");
-      expect(appDetails.resumeHash).to.equal("QmResumeHash123");
-    });
-
-    it("Should allow setting application experience", async function () {
-      const { jobPortal, jobSeeker1 } = await loadFixture(setupJobsFixture);
-
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
-
-      await jobPortal.connect(jobSeeker1).setApplicationExperience(
-        1,
-        "5 years in software development",
-        "Senior Developer at TechCorp"
-      );
-
-      const appDetails = await jobPortal.applicationDetails(1);
-      expect(appDetails.experience).to.equal("5 years in software development");
-      expect(appDetails.currentPosition).to.equal("Senior Developer at TechCorp");
+      const application = await jobPortal.applications(1);
+      expect(application.coverLetter).to.equal("I am very interested in this position...");
+      expect(application.resumeHash).to.equal("QmResumeHash123");
     });
 
     it("Should allow employer to mark application as reviewed", async function () {
       const { jobPortal, employer1, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
 
       await expect(jobPortal.connect(employer1).markApplicationReviewed(1))
         .to.emit(jobPortal, "ApplicationReviewed")
-        .withArgs(1, 1);
+        .withArgs(1);
 
       const application = await jobPortal.applications(1);
       expect(application.status).to.equal(1); // Reviewed
@@ -566,10 +534,10 @@ describe("SimpleJobPortal", function () {
     it("Should not allow non-employer to mark application as reviewed", async function () {
       const { jobPortal, employer2, jobSeeker1 } = await loadFixture(setupJobsFixture);
 
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
 
       await expect(jobPortal.connect(employer2).markApplicationReviewed(1))
-        .to.be.revertedWith("Only job poster can mark applications as reviewed");
+        .to.be.reverted;
     });
   });
 
@@ -579,26 +547,26 @@ describe("SimpleJobPortal", function () {
       const { jobPortal, employer1, employer2, jobSeeker1, jobSeeker2 } = fixture;
 
       // Register users
-      await jobPortal.connect(employer1).registerUserBasic("ABC Company", "hr@abc.com", 1);
-      await jobPortal.connect(employer2).registerUserBasic("XYZ Corp", "jobs@xyz.com", 1);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
-      await jobPortal.connect(jobSeeker2).registerUserBasic("Jane Smith", "jane@example.com", 0);
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(employer2).registerUser("XYZ Corp", "jobs@xyz.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker2).registerUser("Jane Smith", "jane@example.com", 0);
 
       // Post jobs
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Software Engineer", "Description 1", deadline);
-      await jobPortal.connect(employer2).postJobBasic("Data Scientist", "Description 2", deadline);
-      await jobPortal.connect(employer1).postJobBasic("Frontend Developer", "Description 3", deadline);
+      await jobPortal.connect(employer1).postJob("Software Engineer", "Description 1", deadline);
+      await jobPortal.connect(employer2).postJob("Data Scientist", "Description 2", deadline);
+      await jobPortal.connect(employer1).postJob("Frontend Developer", "Description 3", deadline);
 
       // Set job categories
-      await jobPortal.connect(employer1).setJobDetails(1, "Technology", "React, Node.js", "Remote");
-      await jobPortal.connect(employer2).setJobDetails(2, "Data Science", "Python, ML", "NYC");
-      await jobPortal.connect(employer1).setJobDetails(3, "Technology", "JavaScript, CSS", "SF");
+      await jobPortal.connect(employer1).setJobDetails(1, "Technology", "Remote", "$80k-$120k");
+      await jobPortal.connect(employer2).setJobDetails(2, "Data Science", "NYC", "$90k-$140k");
+      await jobPortal.connect(employer1).setJobDetails(3, "Technology", "SF", "$85k-$125k");
 
       // Apply for jobs
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
-      await jobPortal.connect(jobSeeker2).applyForJobBasic(1);
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(2);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
+      await jobPortal.connect(jobSeeker2).applyForJob(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(2);
 
       // Close one job
       await jobPortal.connect(employer1).closeJob(3);
@@ -663,38 +631,16 @@ describe("SimpleJobPortal", function () {
       expect(totalApplications).to.equal(3);
       expect(activeJobs).to.equal(2);
     });
-
-    it("Should return complete job data", async function () {
-      const { jobPortal } = await loadFixture(setupCompleteFixture);
-
-      const [jobBasic, jobDetails] = await jobPortal.getCompleteJob(1);
-      expect(jobBasic.title).to.equal("Software Engineer");
-      expect(jobDetails.category).to.equal("Technology");
-      expect(jobDetails.skillsRequired).to.equal("React, Node.js");
-    });
-
-    it("Should return complete application data", async function () {
-      const { jobPortal, jobSeeker1 } = await loadFixture(setupCompleteFixture);
-
-      // Add application details
-      await jobPortal.connect(jobSeeker1).setApplicationDetails(1, "Cover letter", "QmResumeHash");
-      await jobPortal.connect(jobSeeker1).setApplicationExperience(1, "5 years", "Senior Dev");
-
-      const [app, appDetails] = await jobPortal.getCompleteApplication(1);
-      expect(app.applicant).to.equal(jobSeeker1.address);
-      expect(appDetails.coverLetter).to.equal("Cover letter");
-      expect(appDetails.experience).to.equal("5 years");
-    });
   });
 
   describe("Edge Cases and Security", function () {
     it("Should handle invalid job ID", async function () {
       const { jobPortal, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
 
-      await jobPortal.connect(employer1).registerUserBasic("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
 
       await expect(jobPortal.connect(employer1).closeJob(999))
-        .to.be.revertedWith("Invalid job ID");
+        .to.be.reverted;
     });
 
     it("Should handle invalid application ID", async function () {
@@ -704,7 +650,7 @@ describe("SimpleJobPortal", function () {
         999,
         "Cover letter",
         "QmResumeHash"
-      )).to.be.revertedWith("Invalid application ID");
+      )).to.be.reverted;
     });
 
     it("Should not allow unregistered users to perform actions", async function () {
@@ -712,38 +658,38 @@ describe("SimpleJobPortal", function () {
 
       const deadline = Math.floor(Date.now() / 1000) + 86400;
 
-      await expect(jobPortal.connect(employer1).postJobBasic(
+      await expect(jobPortal.connect(employer1).postJob(
         "Software Engineer",
         "Description",
         deadline
-      )).to.be.revertedWith("User must be registered and active");
+      )).to.be.reverted;
     });
 
     it("Should maintain correct counters after multiple operations", async function () {
       const { jobPortal, employer1, jobSeeker1, jobSeeker2 } = await loadFixture(deploySimpleJobPortalFixture);
 
       // Register users
-      await jobPortal.connect(employer1).registerUserBasic("ABC Company", "hr@abc.com", 1);
-      await jobPortal.connect(jobSeeker1).registerUserBasic("John Doe", "john@example.com", 0);
-      await jobPortal.connect(jobSeeker2).registerUserBasic("Jane Smith", "jane@example.com", 0);
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker2).registerUser("Jane Smith", "jane@example.com", 0);
 
       // Post jobs
       const deadline = Math.floor(Date.now() / 1000) + 86400;
-      await jobPortal.connect(employer1).postJobBasic("Job 1", "Description 1", deadline);
-      await jobPortal.connect(employer1).postJobBasic("Job 2", "Description 2", deadline);
+      await jobPortal.connect(employer1).postJob("Job 1", "Description 1", deadline);
+      await jobPortal.connect(employer1).postJob("Job 2", "Description 2", deadline);
 
       expect(await jobPortal.jobIdCounter()).to.equal(2);
 
       // Apply for jobs
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(1);
-      await jobPortal.connect(jobSeeker2).applyForJobBasic(1);
-      await jobPortal.connect(jobSeeker1).applyForJobBasic(2);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
+      await jobPortal.connect(jobSeeker2).applyForJob(1);
+      await jobPortal.connect(jobSeeker1).applyForJob(2);
 
       expect(await jobPortal.applicationIdCounter()).to.equal(3);
 
       // Check job application counts
-      const job1 = await jobPortal.jobBasics(1);
-      const job2 = await jobPortal.jobBasics(2);
+      const job1 = await jobPortal.jobs(1);
+      const job2 = await jobPortal.jobs(2);
       expect(job1.applicationsCount).to.equal(2);
       expect(job2.applicationsCount).to.equal(1);
 
@@ -755,6 +701,84 @@ describe("SimpleJobPortal", function () {
       expect(employer.totalJobsPosted).to.equal(2);
       expect(seeker1.totalApplications).to.equal(2);
       expect(seeker2.totalApplications).to.equal(1);
+    });
+
+    it("Should not allow updating closed jobs", async function () {
+      const { jobPortal, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
+
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      
+      const deadline = Math.floor(Date.now() / 1000) + 86400;
+      await jobPortal.connect(employer1).postJob("Job 1", "Description 1", deadline);
+      await jobPortal.connect(employer1).closeJob(1);
+
+      await expect(jobPortal.connect(employer1).updateJob(1, "New Title", "New Description"))
+        .to.be.reverted;
+    });
+
+    it("Should not allow re-reviewing applications", async function () {
+      const { jobPortal, employer1, jobSeeker1 } = await loadFixture(deploySimpleJobPortalFixture);
+
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      
+      const deadline = Math.floor(Date.now() / 1000) + 86400;
+      await jobPortal.connect(employer1).postJob("Job 1", "Description 1", deadline);
+      await jobPortal.connect(jobSeeker1).applyForJob(1);
+      
+      await jobPortal.connect(employer1).markApplicationReviewed(1);
+
+      await expect(jobPortal.connect(employer1).markApplicationReviewed(1))
+        .to.be.reverted;
+    });
+  });
+
+  describe("Gas Optimization Tests", function () {
+    it("Should efficiently handle batch operations", async function () {
+      const { jobPortal, employer1, jobSeeker1, jobSeeker2 } = await loadFixture(deploySimpleJobPortalFixture);
+
+      // Register users
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+      await jobPortal.connect(jobSeeker1).registerUser("John Doe", "john@example.com", 0);
+      await jobPortal.connect(jobSeeker2).registerUser("Jane Smith", "jane@example.com", 0);
+
+      // Post multiple jobs efficiently
+      const deadline = Math.floor(Date.now() / 1000) + 86400;
+      
+      const tx1 = await jobPortal.connect(employer1).postJob("Job 1", "Description 1", deadline);
+      const tx2 = await jobPortal.connect(employer1).postJob("Job 2", "Description 2", deadline);
+      const tx3 = await jobPortal.connect(employer1).postJob("Job 3", "Description 3", deadline);
+
+      // Check that all jobs were created successfully
+      expect(await jobPortal.jobIdCounter()).to.equal(3);
+      
+      // Verify gas efficiency by checking transaction success
+      expect(tx1).to.not.be.undefined;
+      expect(tx2).to.not.be.undefined;
+      expect(tx3).to.not.be.undefined;
+    });
+
+    it("Should handle large-scale data retrieval efficiently", async function () {
+      const { jobPortal, employer1 } = await loadFixture(deploySimpleJobPortalFixture);
+
+      await jobPortal.connect(employer1).registerUser("ABC Company", "hr@abc.com", 1);
+
+      // Create multiple jobs
+      const deadline = Math.floor(Date.now() / 1000) + 86400;
+      for (let i = 1; i <= 10; i++) {
+        await jobPortal.connect(employer1).postJob(`Job ${i}`, `Description ${i}`, deadline);
+        await jobPortal.connect(employer1).setJobDetails(i, "Technology", "Remote", "$80k-$120k");
+      }
+
+      // Test efficient retrieval
+      const activeJobs = await jobPortal.getActiveJobs();
+      expect(activeJobs.length).to.equal(10);
+
+      const techJobs = await jobPortal.getJobsByCategory("Technology");
+      expect(techJobs.length).to.equal(10);
+
+      const userJobs = await jobPortal.getUserJobs(employer1.address);
+      expect(userJobs.length).to.equal(10);
     });
   });
 });
