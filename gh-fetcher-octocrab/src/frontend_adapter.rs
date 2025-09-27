@@ -1,7 +1,6 @@
 use crate::analyzer::SkillAnalysis;
 use crate::summary_generator::{SummaryGenerator, DeveloperSummary};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FrontendProfile {

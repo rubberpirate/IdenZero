@@ -1,4 +1,4 @@
-use crate::analyzer::{SkillAnalysis, RepositoryAnalysis};
+use crate::analyzer::SkillAnalysis;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -144,9 +144,9 @@ impl SummaryGenerator {
         
         match max_category {
             Some("blockchain") => WorkStyle::Backend, // Most blockchain devs are backend-focused
-            Some("frontend") if backend_score > 50.0 => WorkStyle::FullStack,
+            Some("frontend") if *backend_score > 50.0 => WorkStyle::FullStack,
             Some("frontend") => WorkStyle::Frontend,
-            Some("backend") if frontend_score > 50.0 => WorkStyle::FullStack,
+            Some("backend") if *frontend_score > 50.0 => WorkStyle::FullStack,
             Some("backend") => WorkStyle::Backend,
             Some("devops") => WorkStyle::DevOps,
             Some("data") => WorkStyle::DataScience,
