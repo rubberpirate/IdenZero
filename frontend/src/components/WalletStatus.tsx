@@ -148,82 +148,67 @@ const WalletStatus: React.FC<WalletStatusProps> = ({ className }) => {
 
   if (!isConnected) {
     return (
-      <div className={`mt-auto pt-6 border-t border-gray-800 ${className}`}>
-        <Button
-          onClick={connectWallet}
-          disabled={isConnecting}
-          className="w-full bg-white/10 hover:bg-white/15 text-white border border-gray-600 transition-colors"
-          size="sm"
-        >
-          {isConnecting ? (
-            <>
-              <AlertCircle className="w-4 h-4 mr-2 animate-spin" />
-              Connecting...
-            </>
-          ) : (
-            <>
-              <Wallet className="w-4 h-4 mr-2" />
-              Connect Wallet
-            </>
-          )}
-        </Button>
-        
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          Connect to access Web3 features
-        </p>
+      <div className={`mt-auto pt-6 border-t border-zinc-800/30 ${className}`}>
+        <div className="px-3 py-3 rounded-2xl bg-gradient-to-r from-zinc-800/40 to-zinc-700/40 border border-zinc-700/50 hover:bg-gradient-to-r hover:from-zinc-800/60 hover:to-zinc-700/60 transition-all duration-300 shadow-lg">
+          <Button
+            onClick={connectWallet}
+            disabled={isConnecting}
+            className="w-full bg-transparent hover:bg-zinc-600/20 text-zinc-300 hover:text-zinc-100 border-0 h-8 text-xs font-medium transition-all duration-300 tracking-wide"
+            size="sm"
+          >
+            {isConnecting ? (
+              <>
+                <div className="w-3 h-3 mr-2 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin" />
+                CONNECTING
+              </>
+            ) : (
+              <>
+                <Wallet className="w-3 h-3 mr-2" />
+                CONNECT WALLET
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`mt-auto pt-6 border-t border-gray-800 ${className}`}>
-      <div className="space-y-3">
-        {/* Connection Status */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-            <span className="text-xs text-gray-400">Connected</span>
+    <div className={`mt-auto pt-6 border-t border-zinc-800/30 ${className}`}>
+      <div className="px-3 py-3 rounded-2xl bg-gradient-to-r from-zinc-800/40 to-zinc-700/40 border border-zinc-700/50 shadow-lg">
+        {/* Sophisticated Address Display */}
+        <div className="flex items-center justify-between mb-3 min-w-0">
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <div className="relative flex-shrink-0">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50" />
+              <div className="absolute inset-0 w-2 h-2 bg-emerald-400 rounded-full animate-ping opacity-20" />
+            </div>
+            <span className="text-xs font-mono text-zinc-200 tracking-wide font-medium truncate">
+              {formatAddress(walletAddress!)}
+            </span>
           </div>
-          <CheckCircle className="w-4 h-4 text-green-400" />
+          <button
+            onClick={copyAddress}
+            className="text-zinc-400 hover:text-zinc-100 transition-all duration-200 p-1.5 rounded-lg hover:bg-zinc-600/20 flex-shrink-0"
+          >
+            <Copy className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Wallet Address */}
-        <div className="bg-white/5 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-gray-400 uppercase tracking-wider">Address</span>
-            <Button
-              onClick={copyAddress}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-white/10"
-            >
-              <Copy className="w-3 h-3" />
-            </Button>
-          </div>
-          <p className="text-sm font-mono text-white">
-            {formatAddress(walletAddress!)}
-          </p>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-2">
-          <Button
+        {/* Sophisticated Actions */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
             onClick={() => window.open(`https://sepolia.etherscan.io/address/${walletAddress}`, '_blank')}
-            variant="outline"
-            size="sm"
-            className="w-full h-8 text-xs border-gray-600 text-gray-300 hover:bg-gray-800"
+            className="py-1.5 px-2 text-[10px] text-zinc-300 hover:text-zinc-100 bg-zinc-700/40 hover:bg-zinc-600/60 transition-all duration-300 text-center rounded-lg border border-zinc-600/30 hover:border-zinc-500/50 font-medium tracking-wide"
           >
-            View on Explorer
-          </Button>
-          
-          <Button
+            EXPLORER
+          </button>
+          <button
             onClick={disconnectWallet}
-            variant="outline"
-            size="sm"
-            className="w-full h-8 text-xs border-gray-600 text-gray-400 hover:bg-red-900/20 hover:border-red-500 hover:text-red-400"
+            className="py-1.5 px-2 text-[10px] text-zinc-400 hover:text-red-300 bg-zinc-700/40 hover:bg-red-900/20 transition-all duration-300 text-center rounded-lg border border-zinc-600/30 hover:border-red-500/30 font-medium tracking-wide"
           >
-            Disconnect
-          </Button>
+            DISCONNECT
+          </button>
         </div>
       </div>
     </div>
