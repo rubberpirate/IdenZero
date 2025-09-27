@@ -39,9 +39,59 @@ const SimpleDashboard = () => {
         return (
           <div className="p-8 space-y-12">
             {/* Profile Header */}
-            <div>
-              <h1 className="text-2xl font-light text-white mb-2">Professional Profile</h1>
-              <p className="text-gray-400 text-sm">Complete overview of your verified professional identity</p>
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-2xl font-light text-white mb-2">Professional Profile</h1>
+                <p className="text-gray-400 text-sm">Complete overview of your verified professional identity</p>
+              </div>
+              
+              {/* Identity Verification Badges */}
+              <div className="flex items-center space-x-2">
+                <div className="relative group">
+                  <Badge className="bg-gray-800/50 text-gray-300 border-gray-700/50 text-xs px-2 py-1 cursor-pointer transition-all hover:bg-gray-700/50">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Blockchain ID
+                  </Badge>
+                  <div className="absolute top-8 right-0 w-64 p-3 bg-black border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-gray-300" />
+                      <span className="text-gray-300 font-medium text-sm">Blockchain Identity</span>
+                    </div>
+                    <p className="text-gray-400 text-xs">Self.xyz verification complete</p>
+                    <p className="text-gray-500 text-xs mt-1">Verified on-chain identity</p>
+                  </div>
+                </div>
+                
+                <div className="relative group">
+                  <Badge className="bg-gray-800/50 text-gray-300 border-gray-700/50 text-xs px-2 py-1 cursor-pointer transition-all hover:bg-gray-700/50">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Gov ID Verified
+                  </Badge>
+                  <div className="absolute top-8 right-0 w-64 p-3 bg-black border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CheckCircle className="w-4 h-4 text-gray-300" />
+                      <span className="text-gray-300 font-medium text-sm">Government ID</span>
+                    </div>
+                    <p className="text-gray-400 text-xs">Aadhaar verification complete</p>
+                    <p className="text-gray-500 text-xs mt-1">Verified through Self.xyz blockchain identity</p>
+                  </div>
+                </div>
+                
+                <div className="relative group">
+                  <Badge className="bg-gray-900/50 text-gray-500 border-gray-800/50 text-xs px-2 py-1 cursor-pointer transition-all hover:bg-gray-800/50">
+                    <X className="w-3 h-3 mr-1" />
+                    Phone
+                  </Badge>
+                  <div className="absolute top-8 right-0 w-64 p-3 bg-black border border-gray-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <X className="w-4 h-4 text-gray-500" />
+                      <span className="text-gray-500 font-medium text-sm">Phone Verification</span>
+                    </div>
+                    <p className="text-gray-400 text-xs">Not started</p>
+                    <p className="text-gray-500 text-xs mt-1">Click to begin verification</p>
+                  </div>
+                </div>
+              </div>
             </div>
             
             {/* Profile Overview */}
@@ -79,56 +129,7 @@ const SimpleDashboard = () => {
               </div>
             </section>
 
-            {/* Identity Verification */}
-            <section className="space-y-6">
-              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Identity Verification</h2>
-              <div className="space-y-4">
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <div>
-                        <h3 className="text-white font-medium">Blockchain Identity</h3>
-                        <p className="text-gray-400 text-sm">Self.xyz verification complete</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                      Verified
-                    </Badge>
-                  </div>
-                </Card>
-                
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Clock className="w-5 h-5 text-yellow-500" />
-                      <div>
-                        <h3 className="text-white font-medium">Government ID</h3>
-                        <p className="text-gray-400 text-sm">Aadhaar verification pending</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                      Pending
-                    </Badge>
-                  </div>
-                </Card>
-                
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <X className="w-5 h-5 text-gray-500" />
-                      <div>
-                        <h3 className="text-white font-medium">Phone Verification</h3>
-                        <p className="text-gray-400 text-sm">Not started</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-                      Start
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </section>
+
 
             {/* Credentials */}
             <section className="space-y-6">
@@ -387,47 +388,6 @@ const SimpleDashboard = () => {
               </div>
             </section>
 
-            {/* Security Settings */}
-            <section className="space-y-6">
-              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Security</h2>
-              <div className="space-y-4">
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white font-medium">Two-Factor Authentication</h3>
-                      <p className="text-gray-400 text-sm">Add an extra layer of security to your account</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-                      Enable 2FA
-                    </Button>
-                  </div>
-                </Card>
-                
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white font-medium">Wallet Connection</h3>
-                      <p className="text-gray-400 text-sm">Manage your connected blockchain wallets</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-                      Manage
-                    </Button>
-                  </div>
-                </Card>
-                
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-white font-medium">API Keys</h3>
-                      <p className="text-gray-400 text-sm">Manage API access for third-party integrations</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-                      View Keys
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </section>
 
             {/* Notification Settings */}
             <section className="space-y-6">
