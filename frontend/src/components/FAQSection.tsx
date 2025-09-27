@@ -81,7 +81,7 @@ const FAQSection = () => {
           answer: "Companies must stake tokens to post legitimate job openings and undergo verification processes. This ensures only serious employers can post jobs, creating a trusted marketplace for both sides."
         },
         {
-          question: "What makes TrustHire different from other job platforms?",
+          question: "What makes IdenZero different from other job platforms?",
           answer: "We eliminate fake profiles through blockchain verification, use AI for accurate skill matching, implement reputation-based filtering, and create economic incentives for quality interactions. It's the first truly trustworthy hiring platform."
         }
       ]

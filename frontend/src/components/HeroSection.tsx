@@ -154,7 +154,7 @@ const HeroSection = () => {
 
         {/* Main Headline */}
         <h1 className="text-3xl xs:text-4xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium tracking-tighter text-white leading-tight sm:leading-none px-1 sm:px-0">
-          <span className="text-green-600 block sm:inline">TrustHire</span>
+          <span className="text-green-600 block sm:inline">IdenZero</span>
           <span className="text-2xl xs:text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl block mt-2 sm:mt-2 text-white">
             <span className="block">Verified Talent,</span>
             <span className="block">Trusted Hiring</span>
@@ -173,15 +173,10 @@ const HeroSection = () => {
             className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full text-sm font-medium h-11 px-6 sm:px-7 flex items-center justify-center sm:mr-2"
             onClick={() => navigate('/dashboard')}
           >
-            Get Started <ArrowRight className="ml-1 h-4 w-4" />
+            Connect with Self 
+            <img src="/self.png" alt="Self" className="ml-2 h-5 w-5 rounded-full" />
           </Button>
-              <Button 
-                variant="outline" 
-                className="w-full sm:w-auto bg-black border-gray-700 text-white hover:bg-gray-900 rounded-full text-sm font-medium h-11 px-6 sm:px-7 flex items-center justify-center"
-                onClick={() => window.location.href = '/about'}
-              >
-                Learn More
-              </Button>
+              
         </div>
 
         {/* Trust Indicator */}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
@@ -18,14 +18,241 @@ import {
   X,
   Settings
 } from 'lucide-react';
+import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
+import { ContributionCalendar } from '@/components/ui/contribution-calendar';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [githubConnected, setGithubConnected] = useState(false);
+  const [githubUsername, setGithubUsername] = useState('');
+  const [showGithubDialog, setShowGithubDialog] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState<string | null>(null);
+  const [githubUserData, setGithubUserData] = useState<any>(null);
+
+  // Check for existing GitHub connection on mount
+  React.useEffect(() => {
+    const checkGithubConnection = () => {
+      try {
+        const storedUserData = localStorage.getItem('github_user_data');
+        const storedToken = localStorage.getItem('github_access_token');
+        
+        if (storedUserData && storedToken) {
+          const userData = JSON.parse(storedUserData);
+          setGithubUserData(userData);
+          setGithubUsername(userData.login);
+          setGithubConnected(true);
+        }
+      } catch (error) {
+        console.error('Error checking GitHub connection:', error);
+        // Clear corrupted data
+        localStorage.removeItem('github_user_data');
+        localStorage.removeItem('github_access_token');
+      }
+    };
+
+    checkGithubConnection();
+    
+    // Listen for OAuth callback
+    const handleOAuthCallback = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code && state === 'github_oauth') {
+        handleGithubOAuthCallback(code);
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    handleOAuthCallback();
+  }, []);
+
+  // GitHub OAuth configuration
+  const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID || 'demo_client_id';
+  const GITHUB_REDIRECT_URI = `${window.location.origin}/dashboard`;
+  const GITHUB_SCOPE = 'read:user,repo';
+
+  // Handle GitHub OAuth callback
+  const handleGithubOAuthCallback = async (code: string) => {
+    setGithubLoading(true);
+    setGithubError(null);
+
+    try {
+      // In a real app, you'd exchange the code for an access token on your backend
+      // For demo purposes, we'll simulate this process
+      const mockUserData = await simulateGithubOAuth(code);
+      
+      // Store user data and token
+      localStorage.setItem('github_user_data', JSON.stringify(mockUserData));
+      localStorage.setItem('github_access_token', mockUserData.access_token);
+      
+      setGithubUserData(mockUserData);
+      setGithubUsername(mockUserData.login);
+      setGithubConnected(true);
+      
+    } catch (error) {
+      console.error('GitHub OAuth error:', error);
+      setGithubError('Failed to connect to GitHub. Please try again.');
+    } finally {
+      setGithubLoading(false);
+    }
+  };
+
+  // Simulate GitHub OAuth flow (replace with real implementation)
+  const simulateGithubOAuth = async (code: string): Promise<any> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Simulate successful OAuth response
+    return {
+      access_token: `ghp_${Math.random().toString(36).substring(2, 15)}`,
+      login: 'john-dev',
+      avatar_url: 'https://github.com/identicons/john-dev.png',
+      name: 'John Developer',
+      bio: 'Full-stack developer passionate about open source',
+      public_repos: 42,
+      followers: 127,
+      following: 89,
+      created_at: '2020-01-15T10:00:00Z',
+      company: 'TechCorp Inc.',
+      location: 'San Francisco, CA'
+    };
+  };
+
+  // Initiate GitHub OAuth flow
+  const initiateGithubOAuth = () => {
+    const params = new URLSearchParams({
+      client_id: GITHUB_CLIENT_ID,
+      redirect_uri: GITHUB_REDIRECT_URI,
+      scope: GITHUB_SCOPE,
+      state: 'github_oauth',
+      allow_signup: 'true'
+    });
+
+    // In a real app, redirect to GitHub OAuth
+    // window.location.href = `https://github.com/login/oauth/authorize?${params}`;
+    
+    // For demo, simulate the OAuth flow
+    const mockCode = Math.random().toString(36).substring(2, 15);
+    setTimeout(() => {
+      handleGithubOAuthCallback(mockCode);
+    }, 100);
+  };
+
+  // Disconnect GitHub
+  const disconnectGithub = () => {
+    localStorage.removeItem('github_user_data');
+    localStorage.removeItem('github_access_token');
+    setGithubConnected(false);
+    setGithubUsername('');
+    setGithubUserData(null);
+    setGithubError(null);
+  };
 
   const handleBackToHome = () => {
     navigate('/');
+  };
+
+  const handleGithubConnect = () => {
+    if (!githubConnected) {
+      if (githubLoading) return; // Prevent multiple connections
+      setShowGithubDialog(true);
+    } else {
+      disconnectGithub();
+    }
+  };
+
+  const handleGithubConnectComplete = () => {
+    setShowGithubDialog(false);
+    initiateGithubOAuth();
+  };
+
+  // Get GitHub commits (would fetch from GitHub API in real implementation)
+  const getGithubCommits = () => {
+    if (!githubConnected || !githubUserData) return [];
+
+    // In a real app, this would fetch from GitHub API
+    const commitTypes = ['feat', 'fix', 'docs', 'refactor', 'test', 'chore', 'style', 'perf'];
+    const realRepositories = ['IdenZero-platform', 'defi-analytics-app', 'react-portfolio', 'api-gateway'];
+    const realisticMessages = [
+      'implement OAuth integration with GitHub API',
+      'add responsive design improvements for mobile users',
+      'optimize database queries and add caching layer',
+      'update documentation with new API endpoints',
+      'fix memory leak in WebSocket connections',
+      'add comprehensive unit tests for auth module',
+      'implement real-time notification system',
+      'upgrade dependencies and fix security vulnerabilities',
+      'refactor user authentication flow',
+      'add dark mode support with theme persistence'
+    ];
+    
+    const generateRealisticTime = (index: number) => {
+      const now = new Date();
+      const hoursAgo = Math.pow(2, index) + Math.random() * 6;
+      const commitTime = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000);
+      
+      if (hoursAgo < 1) return 'just now';
+      if (hoursAgo < 24) return `${Math.floor(hoursAgo)}h ago`;
+      const daysAgo = Math.floor(hoursAgo / 24);
+      if (daysAgo === 1) return '1 day ago';
+      if (daysAgo < 7) return `${daysAgo} days ago`;
+      return commitTime.toLocaleDateString();
+    };
+    
+    return Array.from({ length: 5 }, (_, i) => {
+      const type = commitTypes[Math.floor(Math.random() * commitTypes.length)];
+      const message = realisticMessages[i] || realisticMessages[Math.floor(Math.random() * realisticMessages.length)];
+      
+      return {
+        id: `commit_${Date.now()}_${i}`,
+        sha: Math.random().toString(36).substring(2, 8),
+        type,
+        message,
+        repository: realRepositories[Math.floor(Math.random() * realRepositories.length)],
+        additions: Math.floor(Math.random() * 300) + 5,
+        deletions: Math.floor(Math.random() * 150) + 2,
+        time: generateRealisticTime(i),
+        color: {
+          'feat': 'green',
+          'fix': 'red',
+          'docs': 'blue',
+          'refactor': 'purple',
+          'test': 'yellow',
+          'chore': 'gray',
+          'style': 'pink',
+          'perf': 'orange'
+        }[type] || 'gray',
+        url: `https://github.com/${githubUserData.login}/${realRepositories[Math.floor(Math.random() * realRepositories.length)]}/commit/${Math.random().toString(36).substring(2, 8)}`
+      };
+    });
+  };
+
+  // Get GitHub stats (would fetch from GitHub API)
+  const getGithubStats = () => {
+    if (!githubConnected || !githubUserData) return null;
+
+    return {
+      weeklyCommits: Math.floor(Math.random() * 30) + 15,
+      weeklyProgress: Math.random() * 0.4 + 0.6, // 60-100%
+      languages: [
+        { name: 'TypeScript', color: 'blue', percentage: 45 },
+        { name: 'JavaScript', color: 'yellow', percentage: 30 },
+        { name: 'Rust', color: 'red', percentage: 15 },
+        { name: 'Python', color: 'green', percentage: 10 }
+      ],
+      repositories: [
+        { name: 'IdenZero-platform', commits: Math.floor(Math.random() * 20) + 10 },
+        { name: 'defi-analytics-app', commits: Math.floor(Math.random() * 15) + 5 },
+        { name: 'react-portfolio', commits: Math.floor(Math.random() * 10) + 3 }
+      ],
+      streak: Math.floor(Math.random() * 30) + 12,
+      yearlyContributions: Math.floor(Math.random() * 200) + 287
+    };
   };
 
   const sidebarItems = [
@@ -170,46 +397,220 @@ const SimpleDashboard = () => {
             <section className="space-y-6">
               <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Skills Analysis</h2>
               <Card className="bg-white/5 border-gray-800 p-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <Github className="w-8 h-8 text-gray-400" />
-                  <div>
-                    <h3 className="text-white font-medium">GitHub Analysis</h3>
-                    <p className="text-gray-400 text-sm">Last updated: 2 hours ago</p>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    <Github className={`w-8 h-8 ${githubConnected ? 'text-green-400' : 'text-gray-400'}`} />
+                    <div>
+                      <h3 className="text-white font-medium">GitHub Analysis</h3>
+                      <p className="text-gray-400 text-sm">
+                        {githubConnected ? 'Last updated: 2 hours ago' : 'Connect GitHub to see analysis'}
+                      </p>
+                    </div>
                   </div>
+                  {!githubConnected && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                      onClick={() => setActiveSection('settings')}
+                    >
+                      Connect
+                    </Button>
+                  )}
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">JavaScript</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-24 h-2 bg-gray-700 rounded-full">
-                        <div className="w-20 h-2 bg-white rounded-full"></div>
+                {githubConnected ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">JavaScript</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-700 rounded-full">
+                          <div className="w-20 h-2 bg-white rounded-full"></div>
+                        </div>
+                        <span className="text-white text-sm">Expert</span>
                       </div>
-                      <span className="text-white text-sm">Expert</span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">React</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-700 rounded-full">
+                          <div className="w-18 h-2 bg-white rounded-full"></div>
+                        </div>
+                        <span className="text-white text-sm">Advanced</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Python</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-700 rounded-full">
+                          <div className="w-16 h-2 bg-white rounded-full"></div>
+                        </div>
+                        <span className="text-white text-sm">Intermediate</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">React</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-24 h-2 bg-gray-700 rounded-full">
-                        <div className="w-18 h-2 bg-white rounded-full"></div>
-                      </div>
-                      <span className="text-white text-sm">Advanced</span>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Github className="w-8 h-8 text-gray-600" />
                     </div>
+                    <p className="text-gray-400 text-sm mb-4">
+                      Connect your GitHub account to see detailed skills analysis
+                    </p>
+                    <Button 
+                      size="sm" 
+                      className="bg-white text-black hover:bg-gray-200"
+                      onClick={() => setActiveSection('settings')}
+                    >
+                      Connect GitHub
+                    </Button>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Python</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-24 h-2 bg-gray-700 rounded-full">
-                        <div className="w-16 h-2 bg-white rounded-full"></div>
-                      </div>
-                      <span className="text-white text-sm">Intermediate</span>
-                    </div>
-                  </div>
-                </div>
+                )}
               </Card>
+            </section>
+
+            {/* GitHub Commit History */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">GitHub Activity</h2>
+              {githubConnected ? (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Recent Commits */}
+                    <Card className="bg-white/5 border-gray-800 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-white font-medium">Recent Commits</h3>
+                        <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                          Live
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        {getGithubCommits().map((commit) => (
+                          <div key={commit.id} className="flex items-start space-x-3 p-3 bg-black/20 rounded-lg border border-gray-800/50 hover:bg-black/30 transition-colors cursor-pointer">
+                            <div className={`w-2 h-2 bg-${commit.color}-400 rounded-full mt-2 flex-shrink-0`}></div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-white text-sm font-medium truncate">
+                                  {commit.type}: {commit.message}
+                                </p>
+                                <span className="text-gray-400 text-xs whitespace-nowrap ml-2">{commit.time}</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-xs text-gray-400">
+                                <span>{commit.repository}</span>
+                                <span>•</span>
+                                <span className="text-green-400">+{commit.additions}</span>
+                                <span className="text-red-400">-{commit.deletions}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full mt-4 border-gray-600 text-gray-300 hover:bg-gray-800"
+                      >
+                        <Github className="w-4 h-4 mr-2" />
+                        View on GitHub
+                      </Button>
+                    </Card>
+
+                    {/* Contribution Stats */}
+                    <Card className="bg-white/5 border-gray-800 p-6">
+                      <h3 className="text-white font-medium mb-4">Contribution Overview</h3>
+                      
+                      <div className="space-y-4">
+                        {(() => {
+                          const stats = getGithubStats();
+                          if (!stats) return null;
+
+                          return (
+                            <>
+                              {/* This Week */}
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-gray-300 text-sm">This Week</span>
+                                  <span className="text-white font-medium">{stats.weeklyCommits} commits</span>
+                                </div>
+                                <div className="w-full bg-gray-800 rounded-full h-2">
+                                  <div className="bg-green-400 h-2 rounded-full" style={{ width: `${stats.weeklyProgress * 100}%` }}></div>
+                                </div>
+                              </div>
+
+                              {/* Languages Used */}
+                              <div>
+                                <span className="text-gray-300 text-sm mb-2 block">Languages This Week</span>
+                                <div className="flex flex-wrap gap-2">
+                                  {stats.languages.slice(0, 4).map((lang) => (
+                                    <div key={lang.name} className="flex items-center space-x-1">
+                                      <div className={`w-3 h-3 bg-${lang.color}-400 rounded-full`}></div>
+                                      <span className="text-xs text-gray-400">{lang.name}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Repositories */}
+                              <div>
+                                <span className="text-gray-300 text-sm mb-2 block">Active Repositories</span>
+                                <div className="space-y-2">
+                                  {stats.repositories.map((repo) => (
+                                    <div key={repo.name} className="flex items-center justify-between">
+                                      <span className="text-white text-sm truncate">{repo.name}</span>
+                                      <span className="text-green-400 text-xs">{repo.commits} commits</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Streak */}
+                              <div className="bg-black/20 border border-gray-700 rounded-lg p-4 mt-4">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <span className="text-white font-medium text-lg">🔥 {stats.streak} days</span>
+                                    <p className="text-gray-400 text-xs">Current streak</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <span className="text-green-400 font-medium">{stats.yearlyContributions}</span>
+                                    <p className="text-gray-400 text-xs">Contributions this year</p>
+                                  </div>
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </Card>
+                  </div>
+
+                  {/* Contribution Calendar */}
+                  <div className="mt-6">
+                    <ContributionCalendar />
+                  </div>
+                </>
+              ) : (
+                <Card className="bg-white/5 border-gray-800 p-8">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Github className="w-8 h-8 text-gray-600" />
+                    </div>
+                    <h3 className="text-white font-medium mb-2">GitHub Activity</h3>
+                    <p className="text-gray-400 text-sm mb-4">
+                      Connect your GitHub account to view your commit history and contribution statistics
+                    </p>
+                    <Button 
+                      className="bg-white text-black hover:bg-gray-200"
+                      onClick={() => setActiveSection('settings')}
+                    >
+                      <Github className="w-4 h-4 mr-2" />
+                      Connect GitHub
+                    </Button>
+                  </div>
+                </Card>
+              )}
             </section>
 
             {/* Reputation System */}
@@ -258,7 +659,7 @@ const SimpleDashboard = () => {
                 <Card className="bg-white/5 border-gray-800 p-6 text-center">
                   <Award className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
                   <h3 className="text-white font-medium mb-2">Early Adopter</h3>
-                  <p className="text-gray-400 text-sm">First 1000 users on TrustHire</p>
+                  <p className="text-gray-400 text-sm">First 1000 users on IdenZeri</p>
                 </Card>
                 
                 <Card className="bg-white/5 border-gray-800 p-6 text-center">
@@ -342,6 +743,113 @@ const SimpleDashboard = () => {
                   <Button className="bg-white text-black hover:bg-gray-200">
                     Save Changes
                   </Button>
+                </div>
+              </Card>
+            </section>
+
+            {/* GitHub Integration */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">GitHub Integration</h2>
+              <Card className="bg-white/5 border-gray-800 p-6">
+                <div className="space-y-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center">
+                        <Github className={`w-6 h-6 ${githubConnected ? 'text-green-400' : 'text-gray-400'}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-medium">
+                          {githubConnected ? 'GitHub Connected' : 'Connect GitHub Account'}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          {githubConnected && githubUserData
+                            ? `Connected as @${githubUserData.login} • ${githubUserData.public_repos} repositories • ${githubUserData.followers} followers` 
+                            : githubLoading
+                            ? 'Connecting to GitHub...'
+                            : 'Link your GitHub to analyze your coding skills and contributions'
+                          }
+                        </p>
+                        {githubError && (
+                          <p className="text-red-400 text-xs mt-1">{githubError}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Badge className={githubConnected 
+                      ? "bg-green-500/20 text-green-400 border-green-500/30" 
+                      : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                    }>
+                      {githubConnected ? 'Connected' : 'Not Connected'}
+                    </Badge>
+                  </div>
+                  
+                  {githubConnected ? (
+                    <div className="space-y-4">
+                      <div className="bg-black/20 border border-gray-700 rounded-md p-4">
+                        <h4 className="text-white font-medium mb-3">Repository Analysis</h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-400">Repositories Analyzed:</span>
+                            <div className="text-white font-medium">42</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Languages Detected:</span>
+                            <div className="text-white font-medium">8</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Last Updated:</span>
+                            <div className="text-white font-medium">2 hours ago</div>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Skill Score:</span>
+                            <div className="text-green-400 font-medium">847</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-3">
+                        <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800 flex-1">
+                          <Github className="w-4 h-4 mr-2" />
+                          Refresh Analysis
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="border-red-600 text-red-400 hover:bg-red-500/10"
+                          onClick={handleGithubConnect}
+                        >
+                          Disconnect
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="bg-black/20 border border-gray-700 rounded-md p-4">
+                        <h4 className="text-white font-medium mb-2">What we'll analyze:</h4>
+                        <ul className="space-y-1 text-sm text-gray-400">
+                          <li>• Programming languages and frameworks used</li>
+                          <li>• Code quality and contribution patterns</li>
+                          <li>• Project complexity and technical skills</li>
+                          <li>• Open source contributions and collaboration</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="flex space-x-3">
+                        <Button 
+                          className="bg-white text-black hover:bg-gray-200 flex-1"
+                          onClick={handleGithubConnect}
+                        >
+                          <Github className="w-4 h-4 mr-2" />
+                          Connect GitHub
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                          onClick={() => setShowGithubDialog(true)}
+                        >
+                          Learn More
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Card>
             </section>
@@ -443,14 +951,6 @@ const SimpleDashboard = () => {
                       Export Data
                     </Button>
                   </div>
-                  
-                  <div className="border-t border-red-800 pt-4">
-                    <h3 className="text-red-400 font-medium">Delete Account</h3>
-                    <p className="text-gray-400 text-sm">Permanently delete your account and all associated data</p>
-                    <Button variant="outline" size="sm" className="mt-2 border-red-600 text-red-400 hover:bg-red-500/10">
-                      Delete Account
-                    </Button>
-                  </div>
                 </div>
               </Card>
             </section>
@@ -461,7 +961,7 @@ const SimpleDashboard = () => {
         return (
           <div className="p-8">
             <h1 className="text-2xl font-light text-white mb-2">Dashboard</h1>
-            <p className="text-gray-400">Welcome to TrustHire</p>
+            <p className="text-gray-400">Welcome to IdenZero</p>
           </div>
         );
     }
@@ -479,7 +979,7 @@ const SimpleDashboard = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-12">
             <div>
-              <h1 className="text-lg font-light text-white">TrustHire</h1>
+              <h1 className="text-lg font-light text-white">IdenZero</h1>
               <p className="text-xs text-gray-500 mt-1">Dashboard</p>
             </div>
             <Button
@@ -507,6 +1007,11 @@ const SimpleDashboard = () => {
                 >
                   <Icon className="h-4 w-4 mr-3" />
                   <span className="text-sm font-light">{item.label}</span>
+                  {item.id === 'settings' && githubConnected && (
+                    <div className="ml-auto">
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+                  )}
                 </button>
               );
             })}
@@ -558,6 +1063,18 @@ const SimpleDashboard = () => {
           onClick={() => setSidebarOpen(false)}
         />
       )}
+
+      {/* GitHub Connect Dialog */}
+      <GithubConnectDialog
+        isOpen={showGithubDialog}
+        onClose={() => {
+          setShowGithubDialog(false);
+          setGithubError(null);
+        }}
+        onConnect={handleGithubConnectComplete}
+        loading={githubLoading}
+        error={githubError}
+      />
     </div>
   );
 };

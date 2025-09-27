@@ -71,7 +71,7 @@ const Footer = () => {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-green-600" />
-                <span>support@trusthire.xyz</span>
+                <span>support@IdenZero.com</span>
               </div>
               <div className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-green-600" />
@@ -98,12 +98,12 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
           <div className="text-sm text-muted-foreground">
-            © {currentYear} Aptex wallet. All rights reserved.
+            © {currentYear} IdenZero. All rights reserved.
           </div>
           <div className="flex items-center space-x-1 text-sm text-muted-foreground">
             <span>Made with</span>
             <Heart className="h-3 w-3 text-red-500 fill-current" />
-            <span>for the crypto community</span>
+            <span>for the hiring community</span>
           </div>
         </div>
       </div>

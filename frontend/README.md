@@ -1,6 +1,6 @@
 ## 🌟 Overview
 
-TrustHire is a decentralized resume and identity verification platform that solves the fake profile epidemic in modern hiring. By leveraging blockchain technology, AI-powered skill analysis, and cryptographic verification, we create the most trusted marketplace for connecting genuine talent with legitimate opportunities.
+IdenZero is a decentralized resume and identity verification platform that solves the fake profile epidemic in modern hiring. By leveraging blockchain technology, AI-powered skill analysis, and cryptographic verification, we create the most trusted marketplace for connecting genuine talent with legitimate opportunities.
 
 ## 🎯 Problem Statement
 

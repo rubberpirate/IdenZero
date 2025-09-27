@@ -18,7 +18,7 @@ export const Logo = ({ uniColor = false, className, size = 'md' }: LogoProps) =>
       <div className="relative">
         <img 
           src="/logo.png" 
-          alt="TrustHire Logo" 
+          alt="IdenZero Logo" 
           className={cn(logoSize[size], "object-contain")}
         />
       </div>
@@ -26,7 +26,7 @@ export const Logo = ({ uniColor = false, className, size = 'md' }: LogoProps) =>
         "text-xl font-bold",
         uniColor ? "text-green-600" : "text-foreground"
       )}>
-        TrustHire
+        IdenZero
       </span>
     </div>
   )
