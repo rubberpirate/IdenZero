@@ -1,0 +1,329 @@
+# ==============================================
+# COMPREHENSIVE .GITIGNORE FOR ETH-SS PROJECT
+# ==============================================
+
+# =============
+# BUILD OUTPUTS
+# =============
+# Rust build artifacts
+target/
+**/target/
+**/*.rs.bk
+*.pdb
+Cargo.lock
+
+# Node.js build artifacts
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build directories
+build/
+dist/
+out/
+.next/
+.nuxt/
+.output/
+.vite/
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# =============
+# DEPENDENCIES
+# =============
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python packages
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# =============
+# DEVELOPMENT
+# =============
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim
+*.sublime-*
+.atom/
+
+# Temporary files
+*.tmp
+*.temp
+.temporary/
+
+# Debug files
+*.log
+*.trace
+debug.log
+npm-debug.log*
+
+# =============
+# SYSTEM FILES
+# =============
+# Operating system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+*.lnk
+$RECYCLE.BIN/
+
+# =============
+# CONFIGURATION
+# =============
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Configuration files with secrets
+config.json
+secrets.json
+.secrets
+credentials.json
+
+# API keys and tokens
+.api_keys
+.tokens
+github_token.txt
+
+# =============
+# GENERATED FILES
+# =============
+# Output files
+*.json
+analysis_*.json
+skill_analysis_*.json
+portfolio_*.json
+resume_*.json
+output_*.json
+
+# Generated HTML
+generated_*.html
+output_*.html
+portfolio_*.html
+
+# Generated images/media
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.webp
+*.pdf
+
+# =============
+# CACHE & TEMP
+# =============
+# Cache directories
+.cache/
+cache/
+.temp/
+temp/
+tmp/
+
+# Browser cache
+.browserslistrc
+
+# Testing cache
+.nyc_output/
+coverage/
+*.lcov
+
+# =============
+# LOGS
+# =============
+# Application logs
+logs/
+*.log
+*.log.*
+log-*.txt
+
+# Error logs
+error.log
+errors.log
+crash.log
+
+# =============
+# DATABASES
+# =============
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+database.json
+
+# =============
+# SECURITY
+# =============
+# Private keys
+*.pem
+*.key
+*.p12
+*.crt
+*.cert
+
+# SSH keys
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# =============
+# ARCHIVES
+# =============
+# Compressed files
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.rar
+*.7z
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# =============
+# TESTING
+# =============
+# Test results
+test-results/
+junit.xml
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =============
+# DEPLOYMENT
+# =============
+# Deployment artifacts
+.vercel/
+.netlify/
+.firebase/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# =============
+# PROJECT SPECIFIC
+# =============
+# Portfolio generation outputs
+portfolio.html
+resume.html
+bento_resume.html
+
+# Analysis outputs
+github_analysis.json
+ethglobal_report.json
+trusthire_analysis.json
+
+# Demo files (keep templates, ignore generated)
+demo-ui/generated_*.html
+demo-ui/output_*.html
+
+# Rust specific additions
+**/*.rs.bk
+.cargo/
+registry/
+
+# Additional Node.js ignores
+.pnp
+.pnp.js
+
+# =============
+# EDITOR SPECIFIC
+# =============
+# JetBrains
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+Session.vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# VSCode
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+.history/
+
+# =============
+# MISC
+# =============
+# Thumbnails
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac caches
+.com.apple.timemachine.donotpresent
+
+# Windows shortcuts
+*.lnk

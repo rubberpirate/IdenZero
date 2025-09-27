@@ -1,5 +1,51 @@
-# Logs
-logs
+# ==============================================
+# FRONTEND PROJECT GITIGNORE - OPTIMIZED
+# ==============================================
+
+# =============
+# DEPENDENCIES
+# =============
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+
+# =============
+# BUILD OUTPUTS
+# =============
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.vite/
+dist-ssr/
+
+# Static generation
+.astro/
+
+# =============
+# DEVELOPMENT
+# =============
+# Hot reload
+.vite/
+.rollup.cache/
+
+# Development server
+.dev/
+dev-dist/
+
+# =============
+# LOGS
+# =============
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,20 +53,136 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.github
-.env
+# =============
+# CACHE & TEMP
+# =============
+.cache/
+.temp/
+.tmp/
+*.tmp
+*.temp
 
-# Editor directories and files
+# Browser cache
+.browserslistrc
+
+# =============
+# ENVIRONMENT
+# =============
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# =============
+# TESTING
+# =============
+coverage/
+.nyc_output/
+.coverage
+junit.xml
+test-results/
+
+# =============
+# EDITOR & IDE
+# =============
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
+
+# =============
+# SYSTEM FILES
+# =============
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Linux
+.fuse_hidden*
+.directory
+.Trash-*
+
+# =============
+# DEPLOYMENT
+# =============
+.vercel/
+.netlify/
+.firebase/
+
+# Serverless
+.serverless/
+
+# =============
+# FRAMEWORK SPECIFIC
+# =============
+# Next.js
+.next/
+next-env.d.ts
+
+# Nuxt
+.nuxt/
+.output/
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# SvelteKit
+.svelte-kit/
+
+# =============
+# GENERATED FILES
+# =============
+# Auto-generated files
+*.tsbuildinfo
+.eslintcache
+
+# Storybook
+storybook-static/
+
+# =============
+# MISC
+# =============
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# =============
+# PROJECT SPECIFIC
+# =============
+# Generated portfolio files
+portfolio_*.html
+resume_*.html
+
+# Analysis outputs
+analysis_*.json
+github_*.json
