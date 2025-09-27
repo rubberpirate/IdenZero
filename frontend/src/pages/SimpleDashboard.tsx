@@ -21,7 +21,12 @@ import {
   Plus,
   Edit3,
   Eye,
-  Users
+  Users,
+  GraduationCap,
+  Calendar,
+  ExternalLink,
+  Copy,
+  Hash
 } from 'lucide-react';
 import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
@@ -30,6 +35,9 @@ import JobListings from '@/components/JobListings';
 import JobBrowser from '@/components/JobBrowser';
 import WalletConnection from '@/components/WalletConnection';
 import { jobPortalContract, JobStatus } from '@/utils/contract';
+import { sbtContract, Certificate } from '@/utils/sbtContract';
+import { SBTUNI_CONTRACT_ADDRESS } from '@/config/contract';
+import { TestMinting } from '@/components/TestMinting';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
@@ -56,6 +64,14 @@ const SimpleDashboard = () => {
   // User role state
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<'JobSeeker' | 'Employer' | 'Both' | null>(null);
+
+  // Certificate state
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [certificatesLoading, setCertificatesLoading] = useState(false);
+  const [certificatesError, setCertificatesError] = useState<string | null>(null);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
+  const [showCertificateDetails, setShowCertificateDetails] = useState(false);
+  const [copyNotification, setCopyNotification] = useState<string | null>(null);
 
   // Check for existing GitHub connection on mount
   React.useEffect(() => {
@@ -100,6 +116,7 @@ const SimpleDashboard = () => {
   React.useEffect(() => {
     loadCurrentUser();
     loadJobStatistics();
+    loadUserCertificates();
   }, [jobsRefreshTrigger]);
 
   // Also load user data and statistics on initial mount after a delay to ensure wallet is connected
@@ -107,6 +124,7 @@ const SimpleDashboard = () => {
     const timer = setTimeout(() => {
       loadCurrentUser();
       loadJobStatistics();
+      loadUserCertificates();
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -280,6 +298,78 @@ const SimpleDashboard = () => {
       });
     } catch (error) {
       console.error('Failed to load job statistics:', error);
+    }
+  };
+
+  // Load user certificates from blockchain
+  const loadUserCertificates = async () => {
+    setCertificatesLoading(true);
+    setCertificatesError(null);
+    
+    try {
+      const address = await sbtContract.getConnectedAddress();
+      if (!address) {
+        console.log('🎓 No wallet connected, skipping certificate loading');
+        setCertificates([]);
+        return;
+      }
+
+      console.log('🎓 Loading certificates for address:', address);
+      const userCertificates = await sbtContract.getUserCertificates(address);
+      console.log('🎓 Loaded certificates:', userCertificates);
+      
+      if (userCertificates.length === 0) {
+        console.log('🎓 No certificates found. This could mean:');
+        console.log('  - No certificates have been minted to this address');
+        console.log('  - Contract address is incorrect');
+        console.log('  - Network mismatch');
+        console.log('  - Events are not being emitted properly');
+      }
+      
+      setCertificates(userCertificates);
+    } catch (error) {
+      console.error('Failed to load user certificates:', error);
+      setCertificatesError(`Failed to load certificates: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setCertificates([]);
+    } finally {
+      setCertificatesLoading(false);
+    }
+  };
+
+  // Refresh certificates
+  const refreshCertificates = () => {
+    loadUserCertificates();
+  };
+
+  // Handle certificate details display
+  const handleViewCertificateDetails = (certificate: Certificate) => {
+    setSelectedCertificate(certificate);
+    setShowCertificateDetails(true);
+  };
+
+  const handleCloseCertificateDetails = () => {
+    setSelectedCertificate(null);
+    setShowCertificateDetails(false);
+  };
+
+  // Copy to clipboard function
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyNotification(`${label} copied!`);
+      setTimeout(() => setCopyNotification(null), 2000);
+      console.log(`${label} copied to clipboard: ${text}`);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopyNotification(`${label} copied!`);
+      setTimeout(() => setCopyNotification(null), 2000);
     }
   };
 
@@ -482,38 +572,353 @@ const SimpleDashboard = () => {
 
             {/* Credentials */}
             <section className="space-y-6">
-              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Verified Credentials</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-white font-medium">Computer Science Degree</h3>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Verified
-                      </Badge>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Verified Credentials</h2>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                  onClick={refreshCertificates}
+                  disabled={certificatesLoading}
+                >
+                  {certificatesLoading ? (
+                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <GraduationCap className="w-4 h-4 mr-2" />
+                  )}
+                  {certificatesLoading ? 'Loading...' : 'Refresh'}
+                </Button>
+              </div>
+              
+              {certificatesLoading && (
+                <div className="text-center py-8">
+                  <Clock className="w-8 h-8 text-blue-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-gray-400">Loading your certificates from blockchain...</p>
+                </div>
+              )}
+
+              {certificatesError && (
+                <Card className="bg-red-500/5 border-red-800 p-6">
+                  <div className="flex items-center space-x-3">
+                    <X className="w-5 h-5 text-red-400" />
+                    <div>
+                      <p className="text-red-400 font-medium">Error Loading Certificates</p>
+                      <p className="text-red-300/70 text-sm mt-1">{certificatesError}</p>
                     </div>
-                    <p className="text-gray-400 text-sm">MIT • 2020</p>
-                    <p className="text-gray-400 text-xs">SBT: 0x...abc123</p>
                   </div>
                 </Card>
-                
-                <Card className="bg-white/5 border-gray-800 p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-white font-medium">AWS Solutions Architect</h3>
-                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                        Verified
-                      </Badge>
+              )}
+
+              {!certificatesLoading && !certificatesError && certificates.length === 0 && (
+                <Card className="bg-white/5 border-gray-800 p-8">
+                  <div className="text-center">
+                    <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-white font-medium mb-2">No Certificates Found</h3>
+                    <p className="text-gray-400 text-sm mb-4">
+                      You don't have any verified credentials yet.
+                    </p>
+                    <div className="text-xs text-gray-500 space-y-1 mb-4">
+                      <p>• Make sure your wallet is connected</p>
+                      <p>• Check if you're on the correct network</p>
+                      <p>• Verify the contract address is correct</p>
+                      <p>• Try minting a test certificate below if you're the contract owner</p>
                     </div>
-                    <p className="text-gray-400 text-sm">Amazon Web Services • 2023</p>
-                    <p className="text-gray-400 text-xs">SBT: 0x...def456</p>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setActiveSection('settings')}
+                      className="border-gray-600 text-gray-300"
+                    >
+                      Go to Developer Tools
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {!certificatesLoading && certificates.length > 0 && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {certificates.map((certificate) => (
+                      <Card key={certificate.tokenId} className="bg-white/5 border-gray-800 p-6 hover:bg-white/10 transition-all duration-200">
+                        <div className="space-y-4">
+                          {/* Certificate Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h3 className="text-white font-medium mb-1 break-words">
+                                {certificate.courseName || certificate.certificateType || 'Certificate'}
+                              </h3>
+                              {certificate.studentName && (
+                                <p className="text-gray-300 text-sm mb-2">
+                                  {certificate.studentName}
+                                </p>
+                              )}
+                            </div>
+                            <div className="ml-3 flex-shrink-0">
+                              {certificate.isValid && !certificate.revoked ? (
+                                <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Verified
+                                </Badge>
+                              ) : (
+                                <Badge className="bg-red-500/20 text-red-400 border-red-500/30 text-xs">
+                                  <X className="w-3 h-3 mr-1" />
+                                  {certificate.revoked ? 'Revoked' : 'Invalid'}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Certificate Details */}
+                          <div className="space-y-2">
+                            <div className="flex items-center text-gray-400 text-sm">
+                              <FileCheck className="w-4 h-4 mr-2" />
+                              <span>{certificate.certificateType}</span>
+                            </div>
+                            
+                            {certificate.grade && (
+                              <div className="flex items-center text-gray-400 text-sm">
+                                <Star className="w-4 h-4 mr-2" />
+                                <span>Grade: {certificate.grade}</span>
+                              </div>
+                            )}
+                            
+                            <div className="flex items-center text-gray-400 text-sm">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              <span>Issued: {sbtContract.formatDate(certificate.issuedAt)}</span>
+                            </div>
+                          </div>
+                          
+                          {/* Token Information */}
+                          <div className="pt-3 border-t border-gray-800">
+                            <div className="flex items-center justify-between text-xs mb-2">
+                              <span className="text-gray-500">
+                                Token {sbtContract.formatTokenId(certificate.tokenId)}
+                              </span>
+                              <span className="text-gray-500 font-mono">
+                                {sbtContract.getShortTokenId(certificate.tokenId)}
+                              </span>
+                            </div>
+                            
+                            <div className="mt-2">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 p-0 h-auto text-xs"
+                                onClick={() => handleViewCertificateDetails(certificate)}
+                              >
+                                <Hash className="w-3 h-3 mr-1" />
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {/* Certificate Statistics */}
+                  <Card className="bg-white/5 border-gray-800 p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <div className="text-2xl font-light text-white mb-1">
+                          {certificates.length}
+                        </div>
+                        <div className="text-gray-400 text-sm">Total Certificates</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-light text-white mb-1">
+                          {certificates.filter(cert => cert.isValid && !cert.revoked).length}
+                        </div>
+                        <div className="text-gray-400 text-sm">Valid Certificates</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-light text-white mb-1">
+                          {new Set(certificates.map(cert => cert.certificateType)).size}
+                        </div>
+                        <div className="text-gray-400 text-sm">Certificate Types</div>
+                      </div>
+                    </div>
+                  </Card>
+                </>
+              )}
+            </section>
+
+            {/* Certificate Details Modal */}
+            {showCertificateDetails && selectedCertificate && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <Card className="bg-black border-gray-800 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                  <div className="p-6">
+                    {/* Modal Header */}
+                    <div className="flex items-start justify-between mb-6">
+                      <div>
+                        <h3 className="text-xl font-light text-white mb-2">Certificate Details</h3>
+                        <p className="text-gray-400 text-sm">
+                          Token #{selectedCertificate.tokenId} • {selectedCertificate.certificateType}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCloseCertificateDetails}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Copy Notification */}
+                    {copyNotification && (
+                      <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm">{copyNotification}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Certificate Information */}
+                    <div className="space-y-6">
+                      {/* Basic Info */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-gray-400 text-sm">Student Name</label>
+                          <p className="text-white font-medium">
+                            {selectedCertificate.studentName || 'Not specified'}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-gray-400 text-sm">Course Name</label>
+                          <p className="text-white font-medium">
+                            {selectedCertificate.courseName || 'Not specified'}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-gray-400 text-sm">Grade</label>
+                          <p className="text-white font-medium">
+                            {selectedCertificate.grade || 'Not available'}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-gray-400 text-sm">Issue Date</label>
+                          <p className="text-white font-medium">
+                            {sbtContract.formatDate(selectedCertificate.issuedAt)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Status */}
+                      <div>
+                        <label className="text-gray-400 text-sm">Status</label>
+                        <div className="mt-1">
+                          {selectedCertificate.isValid && !selectedCertificate.revoked ? (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Valid & Verified
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+                              <X className="w-3 h-3 mr-1" />
+                              {selectedCertificate.revoked ? 'Revoked' : 'Invalid'}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Token Information */}
+                      <div className="border-t border-gray-800 pt-4">
+                        <h4 className="text-white font-medium mb-4">Blockchain Information</h4>
+                        
+                        <div className="space-y-3">
+                          {/* Token ID */}
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <div>
+                              <label className="text-gray-400 text-sm">Token ID</label>
+                              <p className="text-white font-mono">
+                                {selectedCertificate.tokenId}
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(selectedCertificate.tokenId.toString(), 'Token ID')}
+                              className="text-gray-400 hover:text-white"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          {/* Token Hash (hex representation) */}
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <div className="flex-1">
+                              <label className="text-gray-400 text-sm">Token Hash</label>
+                              <p className="text-white font-mono text-sm break-all">
+                                {`0x${selectedCertificate.tokenId.toString(16).padStart(64, '0')}`}
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(`0x${selectedCertificate.tokenId.toString(16).padStart(64, '0')}`, 'Token Hash')}
+                              className="text-gray-400 hover:text-white ml-2"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          {/* Metadata URI */}
+                          {selectedCertificate.metadataURI && (
+                            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                              <div className="flex-1">
+                                <label className="text-gray-400 text-sm">Metadata URI</label>
+                                <p className="text-white font-mono text-sm break-all">
+                                  {selectedCertificate.metadataURI}
+                                </p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => copyToClipboard(selectedCertificate.metadataURI, 'Metadata URI')}
+                                className="text-gray-400 hover:text-white ml-2"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Contract Address */}
+                          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                            <div className="flex-1">
+                              <label className="text-gray-400 text-sm">Contract Address</label>
+                              <p className="text-white font-mono text-sm break-all">
+                                {SBTUNI_CONTRACT_ADDRESS}
+                              </p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyToClipboard(SBTUNI_CONTRACT_ADDRESS, 'Contract Address')}
+                              className="text-gray-400 hover:text-white ml-2"
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="mt-6 pt-4 border-t border-gray-800 flex justify-end">
+                      <Button
+                        onClick={handleCloseCertificateDetails}
+                        className="bg-white text-black hover:bg-gray-200"
+                      >
+                        Close
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               </div>
-              <Button variant="outline" className="border-gray-600 text-gray-300">
-                Add New Credential
-              </Button>
-            </section>
+            )}
 
             {/* Skills Analysis */}
             <section className="space-y-6">
@@ -1058,6 +1463,14 @@ const SimpleDashboard = () => {
                     </Button>
                   </div>
                 </Card>
+              </div>
+            </section>
+
+            {/* Developer Tools */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Developer Tools</h2>
+              <div className="space-y-4">
+                <TestMinting onCertificateMinted={refreshCertificates} />
               </div>
             </section>
 

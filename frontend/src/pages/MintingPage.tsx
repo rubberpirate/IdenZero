@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast";
 import { ethers } from 'ethers';
 import { Loader2, Award, CheckCircle, ArrowLeft } from 'lucide-react';
-import { SBTUNI_ABI, CONTRACT_ADDRESS } from '@/config/contract';
+import { SBTUNI_ABI, SBTUNI_CONTRACT_ADDRESS } from '@/config/contract';
 import { useNavigate } from 'react-router-dom';
 
 const MintingPage = () => {
@@ -74,7 +74,7 @@ const MintingPage = () => {
       const signer = await provider.getSigner();
       
       // Create contract instance
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, SBTUNI_ABI, signer);
+      const contract = new ethers.Contract(SBTUNI_CONTRACT_ADDRESS, SBTUNI_ABI, signer);
       
       // Call mint function
       const tx = await contract.mintCertificate(
@@ -197,7 +197,7 @@ const MintingPage = () => {
                   <div className="p-4 bg-blue-900/20 border border-blue-800/30 rounded-xl">
                     <h4 className="text-blue-400 font-medium mb-2">Contract Info</h4>
                     <p className="text-xs text-gray-400 font-mono break-all">
-                      {CONTRACT_ADDRESS.substring(0, 8)}...{CONTRACT_ADDRESS.substring(CONTRACT_ADDRESS.length - 6)}
+                      {SBTUNI_CONTRACT_ADDRESS.substring(0, 8)}...{SBTUNI_CONTRACT_ADDRESS.substring(SBTUNI_CONTRACT_ADDRESS.length - 6)}
                     </p>
                   </div>
                 </CardContent>
