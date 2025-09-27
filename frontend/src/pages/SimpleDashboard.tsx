@@ -26,7 +26,8 @@ import {
   Calendar,
   ExternalLink,
   Copy,
-  Hash
+  Hash,
+  Wallet
 } from 'lucide-react';
 import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
@@ -34,6 +35,7 @@ import PostJobForm from '@/components/PostJobForm';
 import JobListings from '@/components/JobListings';
 import JobBrowser from '@/components/JobBrowser';
 import WalletConnection from '@/components/WalletConnection';
+import WalletStatus from '@/components/WalletStatus';
 import { jobPortalContract, JobStatus } from '@/utils/contract';
 import { sbtContract, Certificate } from '@/utils/sbtContract';
 import { SBTUNI_CONTRACT_ADDRESS } from '@/config/contract';
@@ -1471,23 +1473,19 @@ const SimpleDashboard = () => {
               <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Developer Tools</h2>
               <div className="space-y-4">
                 <TestMinting onCertificateMinted={refreshCertificates} />
-              </div>
-            </section>
-
-            {/* Danger Zone */}
-            <section className="space-y-6">
-              <h2 className="text-lg font-light text-red-400 border-b border-red-800 pb-2">Danger Zone</h2>
-              <Card className="bg-red-500/5 border-red-800 p-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-red-400 font-medium">Export Data</h3>
-                    <p className="text-gray-400 text-sm">Download all your personal data and verification records</p>
-                    <Button variant="outline" size="sm" className="mt-2 border-red-600 text-red-400 hover:bg-red-500/10">
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Export Data</h3>
+                      <p className="text-gray-400 text-sm">Download all your personal data and verification records</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-600/10">
                       Export Data
                     </Button>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             </section>
           </div>
         );
@@ -1665,85 +1663,91 @@ const SimpleDashboard = () => {
         initial={{ x: -240 }}
         animate={{ x: sidebarOpen ? 0 : -240 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
-        className="fixed left-0 top-0 h-full w-60 bg-black border-r border-gray-800 z-50 overflow-y-auto"
+        className="fixed left-0 top-0 h-full w-60 bg-zinc-950/98 backdrop-blur-xl border-r border-zinc-800/50 z-50 overflow-y-auto shadow-2xl"
       >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-12">
+        <div className="p-4 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-zinc-800/30">
             <div>
-              <h1 className="text-lg font-light text-white">IdenZero</h1>
-              <p className="text-xs text-gray-500 mt-1">Dashboard</p>
+              <h1 className="text-lg font-semibold text-zinc-100 tracking-tight">IdenZero</h1>
+              <p className="text-xs text-zinc-500 mt-1 font-medium tracking-wide">DASHBOARD</p>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={handleBackToHome}
-              className="text-gray-500 hover:text-white p-1"
+              className="text-zinc-400 hover:text-zinc-100 p-2 rounded-xl hover:bg-zinc-800/40 transition-all duration-200 border border-transparent hover:border-zinc-700/50"
             >
               <ArrowLeft className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
           
-          <nav className="space-y-1">
+          <nav className="space-y-2 flex-1">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`w-full flex items-center px-3 py-3 text-left transition-all duration-200 ${
+                  className={`group w-full flex items-center px-4 py-3 text-left transition-all duration-300 rounded-2xl relative overflow-hidden ${
                     activeSection === item.id
-                      ? 'text-white border-r-2 border-white bg-white/5'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                      ? 'text-zinc-50 bg-zinc-800 shadow-lg border border-zinc-600/20'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30 border border-transparent hover:border-zinc-700/30'
                   }`}
                 >
-                  <Icon className="h-4 w-4 mr-3" />
-                  <span className="text-sm font-light">{item.label}</span>
+                  <div className={`absolute inset-0 bg-zinc-100/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                    activeSection === item.id ? 'opacity-100' : ''
+                  }`} />
+                  <Icon className="h-4 w-4 mr-3 relative z-10" />
+                  <span className="text-sm font-medium relative z-10 tracking-wide">{item.label}</span>
                   {item.id === 'settings' && githubConnected && (
-                    <div className="ml-auto">
-                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <div className="ml-auto relative z-10">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full shadow-lg shadow-emerald-400/50 animate-pulse"></div>
                     </div>
                   )}
                 </button>
               );
             })}
           </nav>
+          
+          {/* Wallet Status Component */}
+          <WalletStatus />
         </div>
       </motion.div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-200 ${sidebarOpen ? 'ml-60' : 'ml-0'}`}>
-        {/* Minimal Header */}
-        <header className="bg-black/50 backdrop-blur-sm border-b border-gray-800/50 px-8 py-4">
+      <div className={`flex-1 transition-all duration-200 relative z-10 ${sidebarOpen ? 'ml-60' : 'ml-0'}`}>
+        {/* Sophisticated Header */}
+        <header className="bg-zinc-950/90 backdrop-blur-2xl border-b border-zinc-800/40 px-6 py-4 shadow-xl">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-gray-500 hover:text-white p-2"
+              className="text-zinc-400 hover:text-zinc-100 p-2.5 rounded-xl hover:bg-zinc-800/40 transition-all duration-200 border border-transparent hover:border-zinc-700/50"
             >
               <Menu className="h-4 w-4" />
-            </Button>
+            </button>
             <div className="flex items-center space-x-4">
-              <Button
-                onClick={() => navigate('/profile')}
-                size="sm"
-                className="bg-white text-black hover:bg-gray-200"
-              >
-                <User className="h-4 w-4 mr-2" />
-                See Profile
-              </Button>
               <div className="text-right">
-                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                <div className="text-sm text-zinc-200 font-semibold tracking-wide">
                   {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
                 </div>
+                <div className="text-xs text-zinc-500 font-medium tracking-wider">
+                  SECTION
+                </div>
               </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className="px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 bg-zinc-800 hover:bg-zinc-700 rounded-xl border border-zinc-600/30 hover:border-zinc-500/50 transition-all duration-300 shadow-lg"
+              >
+                <User className="h-4 w-4 mr-2 inline" />
+                Profile
+              </button>
             </div>
           </div>
         </header>
 
-        {/* Content */}
-        <main className="bg-black min-h-[calc(100vh-73px)]">
-          {renderContent()}
+        {/* Sophisticated Content Area */}
+        <main className="bg-zinc-950 min-h-[calc(100vh-65px)] relative">
+          <div className="relative z-10">
+            {renderContent()}
+          </div>
         </main>
       </div>
 

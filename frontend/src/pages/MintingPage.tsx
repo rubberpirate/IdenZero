@@ -240,10 +240,10 @@ const MintingPage = () => {
                     <div className="space-y-2">
                       <Label className="text-white">Certificate Type *</Label>
                       <Select value={formData.certificateType} onValueChange={(value) => handleInputChange('certificateType', value)}>
-                        <SelectTrigger className="bg-gray-800/50 border-gray-700 text-white">
+                        <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
+                        <SelectContent className="bg-gray-900 border-gray-600">
                           <SelectItem value="diploma">Diploma</SelectItem>
                           <SelectItem value="degree">Degree</SelectItem>
                           <SelectItem value="certificate">Certificate</SelectItem>
@@ -256,10 +256,10 @@ const MintingPage = () => {
                     <div className="space-y-2">
                       <Label className="text-white">Grade *</Label>
                       <Select value={formData.grade} onValueChange={(value) => handleInputChange('grade', value)}>
-                        <SelectTrigger className="bg-gray-800/50 border-gray-700 text-white">
+                        <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
                           <SelectValue placeholder="Select grade" />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
+                        <SelectContent className="bg-gray-900 border-gray-600">
                           <SelectItem value="A+">A+</SelectItem>
                           <SelectItem value="A">A</SelectItem>
                           <SelectItem value="A-">A-</SelectItem>

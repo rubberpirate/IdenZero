@@ -354,10 +354,10 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
             Job Category *
           </Label>
           <Select onValueChange={(value) => updateFormData('category', value)}>
-            <SelectTrigger className="bg-white/5 border-gray-700 text-white">
+            <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-900 border-gray-600">
               <SelectItem value="software-engineering">Software Engineering</SelectItem>
               <SelectItem value="design">Design</SelectItem>
               <SelectItem value="product-management">Product Management</SelectItem>
@@ -429,10 +429,10 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
             Job Type *
           </Label>
           <Select onValueChange={(value) => updateFormData('jobType', value)}>
-            <SelectTrigger className="bg-white/5 border-gray-700 text-white">
+            <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
               <SelectValue placeholder="Select job type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-gray-900 border-gray-600">
               <SelectItem value="full-time">Full-time</SelectItem>
               <SelectItem value="part-time">Part-time</SelectItem>
               <SelectItem value="contract">Contract</SelectItem>
@@ -498,16 +498,26 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onCancel, onSuccess }) => {
         </div>
 
         <div>
-          <Label htmlFor="reg-usertype" className="text-white mb-2 block">
+          <Label htmlFor="reg-usertype" className="text-white mb-2 block font-medium">
             Account Type *
           </Label>
           <Select onValueChange={(value) => setRegistrationData(prev => ({ ...prev, userType: parseInt(value) as UserType }))}>
-            <SelectTrigger className="bg-white/5 border-gray-700 text-white">
-              <SelectValue placeholder="Select account type" />
+            <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
+              <SelectValue placeholder="Select account type" className="text-gray-300" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={UserType.Employer.toString()}>Employer</SelectItem>
-              <SelectItem value={UserType.Both.toString()}>Both (Employer & Job Seeker)</SelectItem>
+            <SelectContent className="bg-gray-900 border-gray-600">
+              <SelectItem value={UserType.Employer.toString()} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                  <span className="font-medium">Employer</span>
+                </div>
+              </SelectItem>
+              <SelectItem value={UserType.Both.toString()} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                  <span className="font-medium">Both (Employer & Job Seeker)</span>
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
