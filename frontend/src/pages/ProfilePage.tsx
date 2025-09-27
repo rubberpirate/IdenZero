@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 
 const ProfilePage = () => {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
 
   // Mock data - replace with real data
   const profileData = {
@@ -109,7 +109,8 @@ const ProfilePage = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.05,
+        ease: [0.4, 0, 0.2, 1] as const
       }
     }
   };
@@ -144,22 +145,20 @@ const ProfilePage = () => {
   }) => (
     <motion.div
       variants={cardVariants}
-      whileHover={hoverable ? { scale: 1.02, y: -4 } : {}}
-      onHoverStart={() => setHoveredCard(id)}
-      onHoverEnd={() => setHoveredCard(null)}
+      whileHover={hoverable ? { scale: 1.01, y: -2 } : {}}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={`group ${className}`}
     >
-      <Card className="h-full bg-gradient-to-br from-gray-900/50 to-gray-800/30 border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10">
+      <Card className="h-full bg-gray-900/90 border-gray-600/50 transition-all duration-200 hover:border-white/20">
         {children}
       </Card>
     </motion.div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 text-white overflow-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-gray-900/0 to-gray-900/0"></div>
-      <div className="fixed inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+    <div className="min-h-screen bg-black text-white overflow-hidden">
+      {/* Simplified Background */}
+      <div className="fixed inset-0 bg-gradient-to-b from-gray-900/5 to-black"></div>
       
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
         <motion.div
@@ -175,17 +174,17 @@ const ProfilePage = () => {
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center space-x-4">
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold">
+                      <div className="w-20 h-20 rounded-2xl bg-white text-black flex items-center justify-center text-2xl font-bold">
                         AJ
                       </div>
                       {profileData.verified && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <CheckCircle className="w-4 h-4" />
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-4 h-4 text-black" />
                         </div>
                       )}
                     </div>
                     <div>
-                      <Badge variant="secondary" className="mb-2 bg-green-500/20 text-green-400 border-green-500/30">
+                      <Badge variant="secondary" className="mb-2 bg-white/20 text-white border-white/30">
                         {profileData.availability}
                       </Badge>
                     </div>
@@ -193,10 +192,10 @@ const ProfilePage = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold text-white">
                     {profileData.name}
                   </h1>
-                  <p className="text-xl text-blue-400 font-medium">{profileData.title}</p>
+                  <p className="text-xl text-gray-300 font-medium">{profileData.title}</p>
                   <p className="text-gray-400">{profileData.company}</p>
                   
                   <div className="flex items-center space-x-4 text-sm text-gray-400 pt-2">
@@ -218,7 +217,7 @@ const ProfilePage = () => {
                 </p>
                 
                 <div className="flex space-x-3">
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  <Button size="sm" className="bg-white text-black hover:bg-gray-200">
                     <Mail className="w-4 h-4 mr-2" />
                     Contact
                   </Button>
@@ -234,40 +233,40 @@ const ProfilePage = () => {
           {/* Stats Cards */}
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="projects">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">{profileData.stats.projectsCompleted}</div>
+              <div className="text-3xl font-bold text-white mb-2">{profileData.stats.projectsCompleted}</div>
               <div className="text-sm text-gray-400 mb-2">Projects Completed</div>
               <div className="flex justify-center">
-                <Briefcase className="w-5 h-5 text-blue-400" />
+                <Briefcase className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
 
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="satisfaction">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-400 mb-2">{profileData.stats.clientSatisfaction}%</div>
+              <div className="text-3xl font-bold text-white mb-2">{profileData.stats.clientSatisfaction}%</div>
               <div className="text-sm text-gray-400 mb-2">Client Satisfaction</div>
               <div className="flex justify-center">
-                <Star className="w-5 h-5 text-green-400" />
+                <Star className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
 
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="response">
             <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-purple-400 mb-2">{profileData.stats.responseTime}</div>
+              <div className="text-2xl font-bold text-white mb-2">{profileData.stats.responseTime}</div>
               <div className="text-sm text-gray-400 mb-2">Response Time</div>
               <div className="flex justify-center">
-                <Clock className="w-5 h-5 text-purple-400" />
+                <Clock className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
 
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="earnings">
             <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-yellow-400 mb-2">{profileData.stats.totalEarnings}</div>
+              <div className="text-2xl font-bold text-white mb-2">{profileData.stats.totalEarnings}</div>
               <div className="text-sm text-gray-400 mb-2">Total Earnings</div>
               <div className="flex justify-center">
-                <TrendingUp className="w-5 h-5 text-yellow-400" />
+                <TrendingUp className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
@@ -276,7 +275,7 @@ const ProfilePage = () => {
           <BentoCard className="md:col-span-2 lg:col-span-2 xl:col-span-2" id="skills">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
-                <Code className="w-5 h-5 text-blue-400" />
+                <Code className="w-5 h-5 text-gray-300" />
                 <span>Top Skills</span>
               </CardTitle>
             </CardHeader>
@@ -289,10 +288,10 @@ const ProfilePage = () => {
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-2">
                     <motion.div
-                      className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full"
+                      className="bg-white h-2 rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${skill.level}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 }}
+                      transition={{ duration: 0.8, delay: index * 0.1, ease: "easeOut" }}
                     />
                   </div>
                 </div>
@@ -304,7 +303,7 @@ const ProfilePage = () => {
           <BentoCard className="md:col-span-2 lg:col-span-2 xl:col-span-2 md:row-span-2" id="projects-list">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
-                <Briefcase className="w-5 h-5 text-green-400" />
+                <Briefcase className="w-5 h-5 text-gray-300" />
                 <span>Recent Projects</span>
               </CardTitle>
             </CardHeader>
@@ -314,14 +313,14 @@ const ProfilePage = () => {
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-4 rounded-lg bg-gray-800/30 border border-gray-700/50 hover:border-blue-500/30 transition-colors"
+                  transition={{ delay: index * 0.1, ease: "easeOut" }}
+                  className="p-4 rounded-lg bg-gray-800/30 border border-gray-700/50 hover:border-white/30 transition-all duration-200"
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold text-gray-200">{project.title}</h4>
                     <Badge 
                       variant="secondary" 
-                      className={project.status === 'Completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}
+                      className={project.status === 'Completed' ? 'bg-white/20 text-white' : 'bg-gray-500/20 text-gray-300'}
                     >
                       {project.status}
                     </Badge>
@@ -338,7 +337,7 @@ const ProfilePage = () => {
                     {project.rating && (
                       <div className="flex space-x-1">
                         {[...Array(project.rating)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                          <Star key={i} className="w-3 h-3 fill-white text-white" />
                         ))}
                       </div>
                     )}
@@ -376,7 +375,7 @@ const ProfilePage = () => {
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="certs">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center space-x-2 text-sm">
-                <Award className="w-4 h-4 text-yellow-400" />
+                <Award className="w-4 h-4 text-gray-300" />
                 <span>Certifications</span>
               </CardTitle>
             </CardHeader>
@@ -394,7 +393,7 @@ const ProfilePage = () => {
           <BentoCard className="md:col-span-2 lg:col-span-2 xl:col-span-2" id="testimonials">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
-                <MessageCircle className="w-5 h-5 text-purple-400" />
+                <MessageCircle className="w-5 h-5 text-gray-300" />
                 <span>Client Testimonials</span>
               </CardTitle>
             </CardHeader>
@@ -404,12 +403,12 @@ const ProfilePage = () => {
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2 }}
+                  transition={{ delay: index * 0.2, ease: "easeOut" }}
                   className="p-4 rounded-lg bg-gray-800/30 border border-gray-700/50"
                 >
                   <div className="flex space-x-1 mb-2">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <Star key={i} className="w-3 h-3 fill-white text-white" />
                     ))}
                   </div>
                   <p className="text-sm text-gray-300 mb-2">"{testimonial.text}"</p>
@@ -425,12 +424,12 @@ const ProfilePage = () => {
           <BentoCard className="lg:col-span-2 xl:col-span-2" id="actions">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
-                <Zap className="w-5 h-5 text-yellow-400" />
+                <Zap className="w-5 h-5 text-gray-300" />
                 <span>Quick Actions</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+              <Button className="w-full justify-start bg-white text-black hover:bg-gray-200">
                 <Mail className="w-4 h-4 mr-2" />
                 Send Message
               </Button>

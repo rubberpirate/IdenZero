@@ -12,7 +12,7 @@ const Index = () => {
         
         <div className="flex justify-center">
           <Link to="/profile">
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button className="bg-white text-black hover:bg-gray-200">
               <User className="w-4 h-4 mr-2" />
               Go to Profile Page
             </Button>

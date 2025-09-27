@@ -531,7 +531,7 @@ const SimpleDashboard = () => {
               <Button
                 onClick={() => navigate('/profile')}
                 size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-white text-black hover:bg-gray-200"
               >
                 <User className="h-4 w-4 mr-2" />
                 See Profile
