@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice NFT Demo Setup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+        .container {
+            background: rgba(255,255,255,0.05);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 { color: #fff; margin-bottom: 20px; }
+        h2 { color: #ccc; margin-top: 30px; }
+        .button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px 10px 10px 0;
+            transition: all 0.2s;
+        }
+        .button:hover { background: #f0f0f0; }
+        .code {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid;
+        }
+        .success { background: rgba(0,255,0,0.1); border-color: #00ff00; }
+        .info { background: rgba(0,150,255,0.1); border-color: #0096ff; }
+        .steps {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Invoice NFT Demo Setup</h1>
+        <p>This tool will add sample transactions to your Aptos wallet's localStorage so you can test the Invoice NFT functionality in the Collectables section.</p>
+
+        <div class="steps">
+            <h2>📋 Setup Instructions:</h2>
+            <ol>
+                <li><strong>Create/Connect Wallet:</strong> Make sure you have a wallet created in the app first</li>
+                <li><strong>Add Sample Transactions:</strong> Click the button below to add demo transactions</li>
+                <li><strong>View Invoice NFTs:</strong> Go to Collectables → Invoices tab</li>
+                <li><strong>Test Features:</strong> Try previewing and downloading invoice NFTs</li>
+            </ol>
+        </div>
+
+        <div id="status"></div>
+
+        <button class="button" onclick="addDemoTransactions()">
+            📊 Add Sample Transactions
+        </button>
+        
+        <button class="button" onclick="clearTransactions()">
+            🗑️ Clear All Transactions
+        </button>
+
+        <button class="button" onclick="checkWalletStatus()">
+            🔍 Check Wallet Status
+        </button>
+
+        <h2>🔧 Manual Console Commands:</h2>
+        <div class="code">
+// Add sample transactions
+addSampleTransactions();
+
+// Check wallet data
+console.log('Wallet:', JSON.parse(localStorage.getItem('cryptal_wallet') || '{}'));
+
+// Check transactions
+const walletData = JSON.parse(localStorage.getItem('cryptal_wallet') || '{}');
+const publicKey = walletData.accounts?.[0]?.publicKey;
+console.log('Transactions:', JSON.parse(localStorage.getItem(`transactions_${publicKey}`) || '[]'));
+        </div>
+
+        <h2>📱 What's Included:</h2>
+        <ul>
+            <li>5 sample transactions (sent & received)</li>
+            <li>Different amounts and timestamps</li>
+            <li>Valid transaction hashes for testing</li>
+            <li>Compatible with Invoice NFT generation</li>
+        </ul>
+
+        <div class="info status">
+            <strong>ℹ️ Note:</strong> These are demo transactions stored in localStorage only. They won't appear on the actual Aptos blockchain.
+        </div>
+    </div>
+
+    <script src="demo-transaction-invoices.js"></script>
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="${type} status">${message}</div>`;
+        }
+
+        function addDemoTransactions() {
+            try {
+                const result = addSampleTransactions();
+                if (result && result.length > 0) {
+                    showStatus(`✅ Successfully added sample transactions! Total: ${result.length}<br>
+                               📱 Go to your app → Collectables → Invoices tab to see them.`, 'success');
+                } else {
+                    showStatus('❌ Failed to add transactions. Make sure you have a wallet created first.', 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearTransactions() {
+            try {
+                const walletData = localStorage.getItem('cryptal_wallet');
+                if (walletData) {
+                    const parsedData = JSON.parse(walletData);
+                    const publicKey = parsedData.accounts?.[0]?.publicKey;
+                    if (publicKey) {
+                        localStorage.removeItem(`transactions_${publicKey}`);
+                        showStatus('🗑️ All transactions cleared!', 'success');
+                    }
+                } else {
+                    showStatus('❌ No wallet found to clear transactions from.', 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Error clearing transactions: ${error.message}`, 'error');
+            }
+        }
+
+        function checkWalletStatus() {
+            try {
+                const walletData = localStorage.getItem('cryptal_wallet');
+                if (walletData) {
+                    const parsedData = JSON.parse(walletData);
+                    const address = parsedData.accounts?.[0]?.address;
+                    const publicKey = parsedData.accounts?.[0]?.publicKey;
+                    
+                    if (address && publicKey) {
+                        const transactions = localStorage.getItem(`transactions_${publicKey}`);
+                        const txCount = transactions ? JSON.parse(transactions).length : 0;
+                        
+                        showStatus(`✅ Wallet Found!<br>
+                                   📍 Address: ${address.slice(0, 10)}...${address.slice(-6)}<br>
+                                   📊 Transactions: ${txCount}`, 'success');
+                    } else {
+                        showStatus('❌ Wallet data incomplete. Please create a wallet in the app first.', 'error');
+                    }
+                } else {
+                    showStatus('❌ No wallet found. Please create a wallet in the app first.', 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Error checking wallet: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-check wallet status on load
+        window.addEventListener('load', () => {
+            setTimeout(checkWalletStatus, 500);
+        });
+    </script>
+</body>
+</html>
