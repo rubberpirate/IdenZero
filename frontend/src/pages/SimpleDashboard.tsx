@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Wallet, 
-  Send, 
-  History, 
-  Shield,
+  User, 
+  Shield, 
+  FileCheck, 
+  Star,
   Menu,
-  UserPlus,
-  FileText,
-  ArrowLeft
+  Github,
+  Award,
+  ArrowLeft,
+  CheckCircle,
+  Clock,
+  X,
+  Settings
 } from 'lucide-react';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('wallet');
+  const [activeSection, setActiveSection] = useState('profile');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleBackToHome = () => {
@@ -23,142 +29,479 @@ const SimpleDashboard = () => {
   };
 
   const sidebarItems = [
-    { id: 'wallet', label: 'Wallet', icon: Wallet },
-    { id: 'send', label: 'Send', icon: Send },
-    { id: 'history', label: 'History', icon: History },
-    { id: 'security', label: 'Security', icon: Shield },
-    { id: 'profile', label: 'Profile', icon: UserPlus },
-    { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'wallet':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Wallet Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Balance</h3>
-                <p className="text-3xl font-bold text-green-400">$0.00</p>
-                <p className="text-gray-400 text-sm mt-2">Available balance</p>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Total Transactions</h3>
-                <p className="text-3xl font-bold text-green-400">0</p>
-                <p className="text-gray-400 text-sm mt-2">All time</p>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Status</h3>
-                <p className="text-lg font-semibold text-green-400">Active</p>
-                <p className="text-gray-400 text-sm mt-2">Wallet status</p>
-              </div>
-            </div>
-          </div>
-        );
-      case 'send':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Send Money</h2>
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 max-w-md">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Recipient Address
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter recipient address"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Amount
-                  </label>
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="0.00"
-                  />
-                </div>
-                <Button className="w-full">Send Transaction</Button>
-              </div>
-            </div>
-          </div>
-        );
-      case 'history':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Transaction History</h2>
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <p className="text-gray-400 text-center py-8">No transactions yet</p>
-            </div>
-          </div>
-        );
-      case 'security':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Security Settings</h2>
-            <div className="space-y-4">
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Two-Factor Authentication</h3>
-                <p className="text-gray-400 mb-4">Add an extra layer of security to your account</p>
-                <Button variant="outline">Enable 2FA</Button>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                <h3 className="text-lg font-semibold text-white mb-4">Backup Phrase</h3>
-                <p className="text-gray-400 mb-4">Securely backup your wallet recovery phrase</p>
-                <Button variant="outline">View Backup Phrase</Button>
-              </div>
-            </div>
-          </div>
-        );
       case 'profile':
         return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Profile</h2>
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 max-w-md">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Display Name
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter your name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter your email"
-                  />
-                </div>
-                <Button className="w-full">Update Profile</Button>
+          <div className="p-8 space-y-12">
+            {/* Profile Header */}
+            <div>
+              <h1 className="text-2xl font-light text-white mb-2">Professional Profile</h1>
+              <p className="text-gray-400 text-sm">Complete overview of your verified professional identity</p>
+            </div>
+            
+            {/* Profile Overview */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Overview</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center">
+                      <User className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-medium">John Doe</h3>
+                      <p className="text-gray-400 text-sm">Full Stack Developer</p>
+                      <Badge variant="outline" className="mt-2 border-gray-600 text-gray-300">
+                        Verified
+                      </Badge>
+                    </div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-light text-white">847</div>
+                    <div className="text-gray-400 text-sm">Trust Score</div>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-light text-white">12</div>
+                    <div className="text-gray-400 text-sm">Verified Skills</div>
+                  </div>
+                </Card>
               </div>
-            </div>
+            </section>
+
+            {/* Identity Verification */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Identity Verification</h2>
+              <div className="space-y-4">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <div>
+                        <h3 className="text-white font-medium">Blockchain Identity</h3>
+                        <p className="text-gray-400 text-sm">Self.xyz verification complete</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                      Verified
+                    </Badge>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Clock className="w-5 h-5 text-yellow-500" />
+                      <div>
+                        <h3 className="text-white font-medium">Government ID</h3>
+                        <p className="text-gray-400 text-sm">Aadhaar verification pending</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+                      Pending
+                    </Badge>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <X className="w-5 h-5 text-gray-500" />
+                      <div>
+                        <h3 className="text-white font-medium">Phone Verification</h3>
+                        <p className="text-gray-400 text-sm">Not started</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Start
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </section>
+
+            {/* Credentials */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Verified Credentials</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-white font-medium">Computer Science Degree</h3>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Verified
+                      </Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">MIT • 2020</p>
+                    <p className="text-gray-400 text-xs">SBT: 0x...abc123</p>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-white font-medium">AWS Solutions Architect</h3>
+                      <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                        Verified
+                      </Badge>
+                    </div>
+                    <p className="text-gray-400 text-sm">Amazon Web Services • 2023</p>
+                    <p className="text-gray-400 text-xs">SBT: 0x...def456</p>
+                  </div>
+                </Card>
+              </div>
+              <Button variant="outline" className="border-gray-600 text-gray-300">
+                Add New Credential
+              </Button>
+            </section>
+
+            {/* Skills Analysis */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Skills Analysis</h2>
+              <Card className="bg-white/5 border-gray-800 p-6">
+                <div className="flex items-center space-x-4 mb-6">
+                  <Github className="w-8 h-8 text-gray-400" />
+                  <div>
+                    <h3 className="text-white font-medium">GitHub Analysis</h3>
+                    <p className="text-gray-400 text-sm">Last updated: 2 hours ago</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">JavaScript</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 h-2 bg-gray-700 rounded-full">
+                        <div className="w-20 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-white text-sm">Expert</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">React</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 h-2 bg-gray-700 rounded-full">
+                        <div className="w-18 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-white text-sm">Advanced</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300">Python</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 h-2 bg-gray-700 rounded-full">
+                        <div className="w-16 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-white text-sm">Intermediate</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </section>
+
+            {/* Reputation System */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Reputation & Karma</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <div className="text-3xl font-light text-white mb-2">847</div>
+                  <div className="text-gray-400 text-sm">Total Karma</div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <div className="text-3xl font-light text-white mb-2">23</div>
+                  <div className="text-gray-400 text-sm">Endorsements</div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <div className="text-3xl font-light text-white mb-2">95%</div>
+                  <div className="text-gray-400 text-sm">Success Rate</div>
+                </Card>
+              </div>
+              
+              <Card className="bg-white/5 border-gray-800 p-6">
+                <h3 className="text-white font-medium mb-4">Recent Activity</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300">Completed project verification</span>
+                    <span className="text-green-400">+50 karma</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300">Received peer endorsement</span>
+                    <span className="text-green-400">+15 karma</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300">Skills tournament participation</span>
+                    <span className="text-green-400">+25 karma</span>
+                  </div>
+                </div>
+              </Card>
+            </section>
+
+            {/* Achievements */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Achievements</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <Award className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+                  <h3 className="text-white font-medium mb-2">Early Adopter</h3>
+                  <p className="text-gray-400 text-sm">First 1000 users on TrustHire</p>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <Shield className="w-12 h-12 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-white font-medium mb-2">Identity Verified</h3>
+                  <p className="text-gray-400 text-sm">Completed full identity verification</p>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                  <Github className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-white font-medium mb-2">Code Contributor</h3>
+                  <p className="text-gray-400 text-sm">Active GitHub contributor</p>
+                </Card>
+              </div>
+            </section>
           </div>
         );
-      case 'documents':
+
+      case 'settings':
         return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Documents</h2>
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <p className="text-gray-400 text-center py-8">No documents available</p>
+          <div className="p-8 space-y-12">
+            <div>
+              <h1 className="text-2xl font-light text-white mb-2">Settings</h1>
+              <p className="text-gray-400 text-sm">Manage your account preferences and security</p>
             </div>
+            
+            {/* Account Settings */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Account Settings</h2>
+              <Card className="bg-white/5 border-gray-800 p-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Display Name
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 bg-black/20 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                        placeholder="John Doe"
+                        defaultValue="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Professional Title
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 bg-black/20 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                        placeholder="Full Stack Developer"
+                        defaultValue="Full Stack Developer"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 bg-black/20 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                      placeholder="john@example.com"
+                      defaultValue="john@example.com"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      rows={4}
+                      className="w-full px-3 py-2 bg-black/20 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
+                      placeholder="Tell others about yourself..."
+                      defaultValue="Passionate full-stack developer with expertise in React, Node.js, and blockchain technologies. Always learning and building innovative solutions."
+                    />
+                  </div>
+                  
+                  <Button className="bg-white text-black hover:bg-gray-200">
+                    Save Changes
+                  </Button>
+                </div>
+              </Card>
+            </section>
+
+            {/* Privacy Settings */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Privacy Settings</h2>
+              <div className="space-y-4">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Profile Visibility</h3>
+                      <p className="text-gray-400 text-sm">Make your profile visible to employers</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Public
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Skill Analytics</h3>
+                      <p className="text-gray-400 text-sm">Allow AI analysis of your GitHub repositories</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enabled
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Job Recommendations</h3>
+                      <p className="text-gray-400 text-sm">Receive personalized job recommendations</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enabled
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </section>
+
+            {/* Security Settings */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Security</h2>
+              <div className="space-y-4">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Two-Factor Authentication</h3>
+                      <p className="text-gray-400 text-sm">Add an extra layer of security to your account</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enable 2FA
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Wallet Connection</h3>
+                      <p className="text-gray-400 text-sm">Manage your connected blockchain wallets</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Manage
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">API Keys</h3>
+                      <p className="text-gray-400 text-sm">Manage API access for third-party integrations</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      View Keys
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </section>
+
+            {/* Notification Settings */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Notifications</h2>
+              <div className="space-y-4">
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Email Notifications</h3>
+                      <p className="text-gray-400 text-sm">Receive updates about your profile and opportunities</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enabled
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Job Alerts</h3>
+                      <p className="text-gray-400 text-sm">Get notified about new job opportunities</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enabled
+                    </Button>
+                  </div>
+                </Card>
+                
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-medium">Verification Updates</h3>
+                      <p className="text-gray-400 text-sm">Updates on credential and identity verification</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      Enabled
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            </section>
+
+            {/* Danger Zone */}
+            <section className="space-y-6">
+              <h2 className="text-lg font-light text-red-400 border-b border-red-800 pb-2">Danger Zone</h2>
+              <Card className="bg-red-500/5 border-red-800 p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-red-400 font-medium">Export Data</h3>
+                    <p className="text-gray-400 text-sm">Download all your personal data and verification records</p>
+                    <Button variant="outline" size="sm" className="mt-2 border-red-600 text-red-400 hover:bg-red-500/10">
+                      Export Data
+                    </Button>
+                  </div>
+                  
+                  <div className="border-t border-red-800 pt-4">
+                    <h3 className="text-red-400 font-medium">Delete Account</h3>
+                    <p className="text-gray-400 text-sm">Permanently delete your account and all associated data</p>
+                    <Button variant="outline" size="sm" className="mt-2 border-red-600 text-red-400 hover:bg-red-500/10">
+                      Delete Account
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </section>
           </div>
         );
+
       default:
         return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-white mb-6">Dashboard</h2>
-            <p className="text-gray-400">Welcome to your dashboard</p>
+          <div className="p-8">
+            <h1 className="text-2xl font-light text-white mb-2">Dashboard</h1>
+            <p className="text-gray-400">Welcome to TrustHire</p>
           </div>
         );
     }
@@ -168,39 +511,42 @@ const SimpleDashboard = () => {
     <div className="min-h-screen bg-black flex">
       {/* Sidebar */}
       <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: sidebarOpen ? 0 : -300 }}
-        transition={{ duration: 0.3 }}
-        className="fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-700 z-50 overflow-y-auto"
+        initial={{ x: -240 }}
+        animate={{ x: sidebarOpen ? 0 : -240 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="fixed left-0 top-0 h-full w-60 bg-black border-r border-gray-800 z-50 overflow-y-auto"
       >
         <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-xl font-bold text-white">Dashboard</h1>
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h1 className="text-lg font-light text-white">TrustHire</h1>
+              <p className="text-xs text-gray-500 mt-1">Dashboard</p>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleBackToHome}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-500 hover:text-white p-1"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </div>
           
-          <nav className="space-y-2">
+          <nav className="space-y-1">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
                   onClick={() => setActiveSection(item.id)}
-                  className={`w-full flex items-center px-4 py-3 rounded-lg text-left transition-colors ${
+                  className={`w-full flex items-center px-3 py-3 text-left transition-all duration-200 ${
                     activeSection === item.id
-                      ? 'bg-primary text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                      ? 'text-white border-r-2 border-white bg-white/5'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <Icon className="h-5 w-5 mr-3" />
-                  {item.label}
+                  <Icon className="h-4 w-4 mr-3" />
+                  <span className="text-sm font-light">{item.label}</span>
                 </button>
               );
             })}
@@ -209,22 +555,23 @@ const SimpleDashboard = () => {
       </motion.div>
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
-        {/* Header */}
-        <header className="bg-gray-900 border-b border-gray-700 px-6 py-4">
+      <div className={`flex-1 transition-all duration-200 ${sidebarOpen ? 'ml-60' : 'ml-0'}`}>
+        {/* Minimal Header */}
+        <header className="bg-black/50 backdrop-blur-sm border-b border-gray-800/50 px-8 py-4">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-500 hover:text-white p-2"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4" />
             </Button>
-            <h1 className="text-lg font-semibold text-white capitalize">
-              {activeSection}
-            </h1>
-            <div className="w-10" /> {/* Spacer */}
+            <div className="text-right">
+              <div className="text-xs text-gray-500 uppercase tracking-wider">
+                {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+              </div>
+            </div>
           </div>
         </header>
 
@@ -237,7 +584,7 @@ const SimpleDashboard = () => {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

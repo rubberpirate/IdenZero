@@ -242,18 +242,14 @@ export const Navbar = () => { // Renamed from HeroHeader
                                 scrolled ? 'px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-3' : 'px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-4'
                             )}>
                             {/* Logo section - fixed width */}
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="w-[140px]">
+                            <div className="w-[140px]">
                                 <Link
                                     to="/"
                                     aria-label="home"
-                                    className="flex items-center space-x-2 group">
+                                    className="flex items-center space-x-2">
                                     <Logo uniColor={true} />
                                 </Link>
-                            </motion.div>
+                            </div>
                             
                             {/* Center navigation items */}
                             <div className="hidden lg:flex flex-1 justify-center items-center">
