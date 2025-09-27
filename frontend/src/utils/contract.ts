@@ -1103,11 +1103,29 @@ export class JobPortalContract {
         applicationsCount: Number(job.applicationsCount),
         createdAt: Number(job.createdAt),
         deadline: Number(job.deadline),
-        status: job.status
+        status: Number(job.status) as JobStatus
       };
     } catch (error) {
       console.error('Failed to get job:', error);
       return null;
+    }
+  }
+
+  async getJobIdCounter(): Promise<number> {
+    try {
+      if (!this.contract) {
+        await this.connect();
+      }
+      
+      if (!this.contract) {
+        throw new Error('Contract not initialized');
+      }
+
+      const counter = await this.contract.jobIdCounter();
+      return Number(counter);
+    } catch (error) {
+      console.error('Failed to get job ID counter:', error);
+      return 0;
     }
   }
 

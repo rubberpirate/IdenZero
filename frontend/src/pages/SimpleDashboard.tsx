@@ -27,7 +27,9 @@ import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
 import PostJobForm from '@/components/PostJobForm';
 import JobListings from '@/components/JobListings';
+import JobBrowser from '@/components/JobBrowser';
 import WalletConnection from '@/components/WalletConnection';
+import { jobPortalContract, JobStatus } from '@/utils/contract';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
@@ -43,6 +45,17 @@ const SimpleDashboard = () => {
   // Job management state
   const [showPostJobForm, setShowPostJobForm] = useState(false);
   const [jobsRefreshTrigger, setJobsRefreshTrigger] = useState(0);
+  
+  // Job statistics state
+  const [jobStats, setJobStats] = useState({
+    activeJobs: 0,
+    totalApplications: 0,
+    jobViews: 0
+  });
+  
+  // User role state
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<'JobSeeker' | 'Employer' | 'Both' | null>(null);
 
   // Check for existing GitHub connection on mount
   React.useEffect(() => {
@@ -81,6 +94,21 @@ const SimpleDashboard = () => {
     };
 
     handleOAuthCallback();
+  }, []);
+
+  // Load user data and job statistics when component mounts or jobs are refreshed
+  React.useEffect(() => {
+    loadCurrentUser();
+    loadJobStatistics();
+  }, [jobsRefreshTrigger]);
+
+  // Also load user data and statistics on initial mount after a delay to ensure wallet is connected
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      loadCurrentUser();
+      loadJobStatistics();
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   // GitHub OAuth configuration
@@ -187,8 +215,72 @@ const SimpleDashboard = () => {
   const handlePostJobSuccess = (jobId: number) => {
     console.log('Job posted successfully with ID:', jobId);
     setShowPostJobForm(false);
-    // Refresh job listings
+    // Refresh job listings and statistics
     setJobsRefreshTrigger(prev => prev + 1);
+    loadJobStatistics();
+  };
+
+  // Load current user and their role
+  const loadCurrentUser = async () => {
+    try {
+      const address = await jobPortalContract.getConnectedAddress();
+      console.log('🔍 Dashboard: Connected address:', address);
+      if (!address) return;
+
+      const user = await jobPortalContract.getUser(address);
+      console.log('🔍 Dashboard: User data:', user);
+      if (user) {
+        setCurrentUser(user);
+        // Map UserType enum to string
+        const roleMap = {
+          0: 'JobSeeker' as const,
+          1: 'Employer' as const,
+          2: 'Both' as const
+        };
+        const detectedRole = roleMap[user.userType as keyof typeof roleMap] || null;
+        console.log('🔍 Dashboard: User type from contract:', user.userType, '-> Mapped role:', detectedRole);
+        setUserRole(detectedRole);
+      } else {
+        console.log('🔍 Dashboard: No user found for address:', address);
+      }
+    } catch (error) {
+      console.error('Failed to load current user:', error);
+    }
+  };
+
+  // Load job statistics
+  const loadJobStatistics = async () => {
+    try {
+      const address = await jobPortalContract.getConnectedAddress();
+      if (!address) return;
+
+      const jobIds = await jobPortalContract.getUserJobs(address);
+      let activeJobs = 0;
+      let totalApplications = 0;
+
+      // Calculate statistics from user's jobs
+      for (const jobId of jobIds) {
+        const job = await jobPortalContract.getJob(jobId);
+        if (job) {
+          // Count active jobs (not closed and not expired)
+          const isExpired = job.deadline * 1000 < Date.now();
+          if (job.status === 0 && !isExpired) { // JobStatus.Active = 0
+            activeJobs++;
+          }
+          
+          // Add up total applications
+          totalApplications += job.applicationsCount;
+        }
+      }
+
+      setJobStats({
+        activeJobs,
+        totalApplications,
+        jobViews: 0 // Job views would need to be tracked separately
+      });
+    } catch (error) {
+      console.error('Failed to load job statistics:', error);
+    }
   };
 
   const handlePostJobCancel = () => {
@@ -991,99 +1083,154 @@ const SimpleDashboard = () => {
         return (
           <WalletConnection>
             <div className="p-8 space-y-12">
-            {showPostJobForm ? (
-              <div>
-                <div className="mb-8">
-                  <h1 className="text-2xl font-light text-white mb-2">Post New Job</h1>
-                  <p className="text-gray-400 text-sm">Create a new job listing to find qualified candidates</p>
+              {/* Show loading state while determining user role */}
+              {!userRole ? (
+                <div className="text-center py-12">
+                  <Clock className="w-8 h-8 text-blue-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-white">Loading your profile...</p>
                 </div>
-                <PostJobForm 
-                  onCancel={handlePostJobCancel}
-                  onSuccess={handlePostJobSuccess}
-                />
-              </div>
-            ) : (
-              <>
-                <div>
-                  <h1 className="text-2xl font-light text-white mb-2">Job Management</h1>
-                  <p className="text-gray-400 text-sm">Post and manage your job listings</p>
-                </div>
-                
-                {/* Job Management Actions */}
-                <section className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Your Job Listings</h2>
-                    <Button 
-                      onClick={() => setShowPostJobForm(true)}
-                      className="bg-white text-black hover:bg-gray-200"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Post New Job
-                    </Button>
+              ) : userRole === 'JobSeeker' ? (
+                // Job Seeker View - Browse and apply to jobs
+                <>
+                  {console.log('🔍 Dashboard: Rendering JobSeeker view for role:', userRole)}
+                  <div>
+                    <h1 className="text-2xl font-light text-white mb-2">Browse Jobs</h1>
+                    <p className="text-gray-400 text-sm">Find and apply to job opportunities</p>
                   </div>
                   
-                  <JobListings 
-                    refreshTrigger={jobsRefreshTrigger}
-                    onEditJob={handleEditJob}
-                  />
-                </section>
-
-                {/* Quick Stats */}
-                <section className="space-y-6">
-                  <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Job Statistics</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
-                      <Briefcase className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-white">0</div>
-                      <div className="text-sm text-gray-400">Active Jobs</div>
-                    </Card>
-                    
-                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
-                      <Users className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-white">0</div>
-                      <div className="text-sm text-gray-400">Total Applications</div>
-                    </Card>
-                    
-                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
-                      <Eye className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-white">0</div>
-                      <div className="text-sm text-gray-400">Job Views</div>
-                    </Card>
-                  </div>
-                </section>
-
-                {/* Help Section */}
-                <section className="space-y-6">
-                  <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Getting Started</h2>
-                  <Card className="bg-white/5 border-gray-800 p-6">
-                    <h3 className="text-white font-medium mb-4">How to post your first job</h3>
-                    <div className="space-y-3 text-sm text-gray-400">
-                      <div className="flex items-start">
-                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</div>
-                        <div>
-                          <div className="text-white font-medium">Connect your wallet</div>
-                          <div>Make sure you have a Web3 wallet connected to post jobs on the blockchain</div>
-                        </div>
+                  <JobBrowser refreshTrigger={jobsRefreshTrigger} />
+                </>
+              ) : (
+                // Employer/Both View - Manage job postings
+                <>
+                  {console.log('🔍 Dashboard: Rendering Employer/Both view for role:', userRole)}
+                  {showPostJobForm ? (
+                    <div>
+                      <div className="mb-8">
+                        <h1 className="text-2xl font-light text-white mb-2">Post New Job</h1>
+                        <p className="text-gray-400 text-sm">Create a new job listing to find qualified candidates</p>
                       </div>
-                      <div className="flex items-start">
-                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</div>
-                        <div>
-                          <div className="text-white font-medium">Fill out job details</div>
-                          <div>Provide comprehensive information about the role, requirements, and compensation</div>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</div>
-                        <div>
-                          <div className="text-white font-medium">Review and publish</div>
-                          <div>Your job will be stored on the blockchain and visible to potential candidates</div>
-                        </div>
-                      </div>
+                      <PostJobForm 
+                        onCancel={handlePostJobCancel}
+                        onSuccess={handlePostJobSuccess}
+                      />
                     </div>
-                  </Card>
-                </section>
-              </>
-            )}
+                  ) : (
+                    <>
+                      <div>
+                        <h1 className="text-2xl font-light text-white mb-2">Job Management</h1>
+                        <p className="text-gray-400 text-sm">Post and manage your job listings</p>
+                      </div>
+                      
+                      {/* Role indicator */}
+                      <Card className="bg-blue-500/5 border-blue-500/20 p-4">
+                        <div className="flex items-center">
+                          <Briefcase className="w-5 h-5 text-blue-400 mr-2" />
+                          <span className="text-blue-400 font-medium text-sm">
+                            {userRole === 'Both' ? 'Employer & Job Seeker' : 'Employer'} Dashboard
+                          </span>
+                          {userRole === 'Both' && (
+                            <Badge className="ml-auto bg-green-500/20 text-green-400 text-xs">
+                              Dual Role
+                            </Badge>
+                          )}
+                        </div>
+                      </Card>
+                      
+                      {/* Job Management Actions */}
+                      <section className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Your Job Listings</h2>
+                          <Button 
+                            onClick={() => setShowPostJobForm(true)}
+                            className="bg-white text-black hover:bg-gray-200"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Post New Job
+                          </Button>
+                        </div>
+                        
+                        <JobListings 
+                          refreshTrigger={jobsRefreshTrigger}
+                          onEditJob={handleEditJob}
+                          onJobAction={loadJobStatistics}
+                        />
+                      </section>
+
+                      {/* Quick Stats */}
+                      <section className="space-y-6">
+                        <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Job Statistics</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                            <Briefcase className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{jobStats.activeJobs}</div>
+                            <div className="text-sm text-gray-400">Active Jobs</div>
+                          </Card>
+                          
+                          <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                            <Users className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{jobStats.totalApplications}</div>
+                            <div className="text-sm text-gray-400">Total Applications</div>
+                          </Card>
+                          
+                          <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                            <Eye className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                            <div className="text-2xl font-bold text-white">{jobStats.jobViews}</div>
+                            <div className="text-sm text-gray-400">Job Views</div>
+                          </Card>
+                        </div>
+                      </section>
+
+                      {/* Browse Jobs Section for Both role and optional for Employers */}
+                      {(userRole === 'Both' || userRole === 'Employer') && (
+                        <section className="space-y-6">
+                          <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">
+                            {userRole === 'Both' ? 'Browse Other Jobs' : 'Browse Available Jobs'}
+                          </h2>
+                          <p className="text-gray-400 text-sm mb-4">
+                            {userRole === 'Both' 
+                              ? 'Since you\'re registered as both an employer and job seeker, you can also browse and apply to other opportunities.'
+                              : 'View all available job opportunities in the platform.'
+                            }
+                          </p>
+                          <JobBrowser refreshTrigger={jobsRefreshTrigger} />
+                        </section>
+                      )}
+
+                      {/* Help Section */}
+                      <section className="space-y-6">
+                        <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Getting Started</h2>
+                        <Card className="bg-white/5 border-gray-800 p-6">
+                          <h3 className="text-white font-medium mb-4">How to post your first job</h3>
+                          <div className="space-y-3 text-sm text-gray-400">
+                            <div className="flex items-start">
+                              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</div>
+                              <div>
+                                <div className="text-white font-medium">Connect your wallet</div>
+                                <div>Make sure you have a Web3 wallet connected to post jobs on the blockchain</div>
+                              </div>
+                            </div>
+                            <div className="flex items-start">
+                              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</div>
+                              <div>
+                                <div className="text-white font-medium">Fill out job details</div>
+                                <div>Provide comprehensive information about the role, requirements, and compensation</div>
+                              </div>
+                            </div>
+                            <div className="flex items-start">
+                              <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</div>
+                              <div>
+                                <div className="text-white font-medium">Review and publish</div>
+                                <div>Your job will be stored on the blockchain and visible to potential candidates</div>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      </section>
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </WalletConnection>
         );

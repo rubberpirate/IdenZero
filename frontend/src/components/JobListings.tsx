@@ -19,9 +19,10 @@ import { jobPortalContract, Job, JobStatus, formatDeadline, formatSalary } from 
 interface JobListingsProps {
   refreshTrigger?: number;
   onEditJob?: (jobId: number) => void;
+  onJobAction?: () => void; // Callback when job status changes
 }
 
-const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) => {
+const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob, onJobAction }) => {
   const [jobs, setJobs] = useState<(Job & { jobId: number })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,8 @@ const JobListings: React.FC<JobListingsProps> = ({ refreshTrigger, onEditJob }) 
         await tx.wait();
         // Refresh the job list
         await loadUserJobs();
+        // Notify parent component that job status changed
+        onJobAction?.();
       }
     } catch (error) {
       console.error('Failed to close job:', error);
