@@ -1,10 +1,9 @@
 use warp::{Filter, Reply};
 use serde_json;
-use std::collections::HashMap;
 use std::sync::{Arc};
 use tokio::sync::Mutex;
 
-use crate::improved_analyzer::{ImprovedAnalyzer, AnalysisRequest, AnalysisDepth, AnalysisResponse};
+use crate::improved_analyzer::{ImprovedAnalyzer, AnalysisRequest, AnalysisDepth};
 use crate::streamlined_analyzer::StreamlinedAnalyzer;
 
 pub struct ApiServer {
@@ -85,12 +84,9 @@ impl ApiServer {
 
         let routes = api.or(demo).with(cors);
 
-        println!("🚀 IdenZero API Server starting on http://localhost:3030");
-        println!("📊 Health check: http://localhost:3030/api/health");
-        println!("⚡ Streamlined profile: http://localhost:3030/api/streamlined/username");
-        println!("🧑‍💻 Quick analysis: http://localhost:3030/api/quick/username");
-        println!("🎨 Frontend profile: http://localhost:3030/api/profile/username");
-        println!("🌐 Demo UI: http://localhost:3030/demo");
+        tracing::info!("IdenZero API Server starting on http://localhost:3030");
+        tracing::info!("Health endpoint available at: /api/health");
+        tracing::info!("Profile endpoints available at: /api/streamlined/<username>, /api/quick/<username>, /api/profile/<username>");
         
         warp::serve(routes)
             .run(([0, 0, 0, 0], 3030))
@@ -238,12 +234,4 @@ pub fn example_requests() -> Vec<AnalysisRequest> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio_test;
-
-    #[tokio::test]
-    async fn test_example_analysis() {
-        // This would require a test GitHub token
-        // let server = ApiServer::new("test_token".to_string()).unwrap();
-        // Test basic functionality here
-    }
 }

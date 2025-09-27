@@ -1,21 +1,36 @@
 use std::env;
 use std::io::{self, Write};
-use idenzero_analyzer::{GitHubAnalyzer, UserProfile, SummaryGenerator, FrontendAdapter, ApiServer};
+use idenzero_analyzer::{GitHubAnalyzer, UserProfile, SummaryGenerator, FrontendAdapter, ApiServer, IdenScoreCalculator};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("🚀 IdenZero Skill Analyzer - AI-Powered GitHub Analysis");
-    println!("========================================================");
+    // Initialize logging
+    let log_level = env::var("RUST_LOG").unwrap_or_else(|_| {
+        if env::args().any(|arg| arg == "server") {
+            "info".to_string()
+        } else {
+            "warn".to_string()
+        }
+    });
     
+    tracing_subscriber::fmt()
+        .with_env_filter(log_level)
+        .init();
+
     // Check if server mode is requested
     let args: Vec<String> = env::args().collect();
     let server_mode = args.len() > 1 && args[1] == "server";
+
+    if !server_mode {
+        println!("🚀 IdenZero Skill Analyzer - AI-Powered GitHub Analysis");
+        println!("========================================================");
+    }
 
     // Get GitHub token from environment
     let github_token = env::var("GITHUB_TOKEN")
         .or_else(|_| -> Result<String, std::env::VarError> {
             if server_mode {
-                eprintln!("❌ GITHUB_TOKEN environment variable is required for server mode!");
+                tracing::error!("GITHUB_TOKEN environment variable is required for server mode");
                 std::process::exit(1);
             }
             
@@ -27,12 +42,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         })?;
 
     if github_token.is_empty() {
-        eprintln!("❌ GitHub token is required!");
+        tracing::error!("GitHub token is required");
         std::process::exit(1);
     }
 
     if server_mode {
-        println!("🌐 Starting API Server Mode...");
+        tracing::info!("Starting API Server Mode");
         let server = ApiServer::new(github_token)?;
         server.serve().await;
         return Ok(());
@@ -47,6 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut analyzer = GitHubAnalyzer::new(github_token)?;
     let summary_generator = SummaryGenerator::new();
     let frontend_adapter = FrontendAdapter::new();
+    let iden_score_calculator = IdenScoreCalculator::new();
 
     loop {
         println!("\n📝 Enter GitHub username to analyze (or 'quit' to exit):");
@@ -87,6 +103,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(analysis) => {
                 // Display traditional analysis
                 display_analysis(&analysis);
+                
+                // Calculate and display IdenScore
+                println!("\n🎯 ===== IDENSCORE ANALYSIS =====");
+                let iden_score = iden_score_calculator.calculate_iden_score(&analysis);
+                display_iden_score(&iden_score);
                 
                 // Generate and display AI summary
                 println!("\n🤖 AI-Generated Summary:");
@@ -142,7 +163,7 @@ fn display_analysis(analysis: &idenzero_analyzer::SkillAnalysis) {
         println!("   No language data found");
     } else {
         let mut sorted_languages: Vec<_> = analysis.language_breakdown.iter().collect();
-        sorted_languages.sort_by(|a, b| b.1.score.partial_cmp(&a.1.score).unwrap());
+        sorted_languages.sort_by(|a, b| b.1.score.partial_cmp(&a.1.score).unwrap_or(std::cmp::Ordering::Equal));
         
         for (lang, skill) in sorted_languages.iter().take(10) {
             println!("   {:12} {:.1}/100 ({} projects, ~{} lines)", 
@@ -328,4 +349,115 @@ fn display_frontend_preview(profile: &idenzero_analyzer::FrontendProfile) {
                  project.stars,
                  project.tech_stack.join(", "));
     }
+}
+
+fn display_iden_score(iden_score: &idenzero_analyzer::IdenScore) {
+    println!("🎯 IdenScore: {:.0}/1000 ({})", iden_score.overall_score, iden_score.get_skill_level());
+    println!("🔒 Verification Hash: {}...", &iden_score.verification_hash[..16]);
+    println!("📊 Confidence Level: {:.1}%", iden_score.confidence_level);
+    println!("📅 Calculated: {}", iden_score.calculated_at.format("%Y-%m-%d %H:%M UTC"));
+    println!("🔄 Next Evaluation: {}", iden_score.next_evaluation.format("%Y-%m-%d"));
+    println!();
+
+    // Display skill categories
+    println!("📋 Skill Categories Breakdown:");
+    println!("------------------------------");
+    println!("   🔧 Technical Mastery:    {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.technical_mastery.score,
+             iden_score.skill_categories.technical_mastery.weight * 100.0);
+    println!("   🏗️  Architecture Design:  {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.architecture_design.score,
+             iden_score.skill_categories.architecture_design.weight * 100.0);
+    println!("   ✨ Code Quality:         {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.code_quality.score,
+             iden_score.skill_categories.code_quality.weight * 100.0);
+    println!("   🚀 Innovation:           {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.innovation.score,
+             iden_score.skill_categories.innovation.weight * 100.0);
+    println!("   🤝 Collaboration:        {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.collaboration.score,
+             iden_score.skill_categories.collaboration.weight * 100.0);
+    println!("   🎓 Domain Expertise:     {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.domain_expertise.score,
+             iden_score.skill_categories.domain_expertise.weight * 100.0);
+    println!("   👑 Leadership:           {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.leadership.score,
+             iden_score.skill_categories.leadership.weight * 100.0);
+    println!("   📚 Continuous Learning:  {:.1}/100 (Weight: {:.0}%)", 
+             iden_score.skill_categories.continuous_learning.score,
+             iden_score.skill_categories.continuous_learning.weight * 100.0);
+    println!();
+
+    // Growth potential
+    println!("📈 Growth Potential: {:.1}/100", iden_score.growth_potential.overall_growth_score);
+    println!("🎯 Next Milestone: {:.0} points ({})", 
+             iden_score.get_next_milestone(),
+             match iden_score.get_next_milestone() {
+                 200.0 => "Beginner Level",
+                 400.0 => "Junior Level", 
+                 600.0 => "Mid-Level",
+                 750.0 => "Senior Level",
+                 900.0 => "Expert Level",
+                 _ => "Master Level"
+             });
+    println!();
+
+    // Skill trajectory
+    println!("📊 Skill Trajectory:");
+    println!("   Trend: {:?}", iden_score.skill_trajectory.trend);
+    println!("   Velocity: {:.1} points/month", iden_score.skill_trajectory.velocity);
+    println!("   Consistency: {:.1}%", iden_score.skill_trajectory.consistency);
+    println!();
+
+    // Priority growth areas
+    if !iden_score.growth_potential.priority_areas.is_empty() {
+        println!("🚀 Priority Growth Areas:");
+        for (i, area) in iden_score.growth_potential.priority_areas.iter().enumerate().take(3) {
+            println!("   {}. {} ({:.1} → {:.1}) - {} months", 
+                     i + 1,
+                     area.area,
+                     area.current_level,
+                     area.target_level,
+                     area.timeline_months);
+        }
+        println!();
+    }
+
+    // Recommended actions
+    if !iden_score.growth_potential.recommended_actions.is_empty() {
+        println!("💡 Top Recommended Actions:");
+        for (i, action) in iden_score.growth_potential.recommended_actions.iter().enumerate().take(3) {
+            let priority_icon = match action.priority {
+                idenzero_analyzer::Priority::Critical => "🔥",
+                idenzero_analyzer::Priority::High => "⚡",
+                idenzero_analyzer::Priority::Medium => "📅",
+                idenzero_analyzer::Priority::Low => "💭",
+            };
+            println!("   {} {} (+{:.1} points, effort: {:.1}/10)", 
+                     priority_icon,
+                     action.action,
+                     action.impact,
+                     action.effort_required);
+        }
+        println!();
+    }
+
+    // Growth indicators from strongest categories
+    println!("✨ Key Strengths Identified:");
+    let categories = vec![
+        ("Technical Mastery", &iden_score.skill_categories.technical_mastery),
+        ("Code Quality", &iden_score.skill_categories.code_quality),
+        ("Innovation", &iden_score.skill_categories.innovation),
+        ("Collaboration", &iden_score.skill_categories.collaboration),
+    ];
+    
+    for (name, category) in categories {
+        if category.score > 60.0 && !category.growth_indicators.is_empty() {
+            println!("   • {}: {}", name, category.growth_indicators.join(", "));
+        }
+    }
+    
+    println!();
+    println!("🔐 Security Note: This IdenScore is cryptographically signed and tamper-proof.");
+    println!("   Use verify_integrity() method to validate score authenticity.");
 }

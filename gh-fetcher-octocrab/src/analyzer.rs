@@ -108,14 +108,14 @@ impl GitHubAnalyzer {
             }
         }
 
-        println!("🔍 Fetching comprehensive GitHub data for user: {}", username);
+        tracing::info!("Fetching comprehensive GitHub data for user: {}", username);
 
         // Fetch ALL repositories (public)
         let repositories = self.fetch_all_repositories(username).await?;
-        println!("📊 Found {} repositories to analyze", repositories.len());
+        tracing::debug!("Found {} repositories to analyze", repositories.len());
 
         if repositories.is_empty() {
-            println!("⚠️  No repositories found for user: {}", username);
+            tracing::warn!("No repositories found for user: {}", username);
             return Ok(self.create_empty_analysis(&profile));
         }
 
@@ -123,7 +123,7 @@ impl GitHubAnalyzer {
         let repo_analyses = self.analyze_repositories(username, &repositories).await;
 
         if repo_analyses.is_empty() {
-            println!("⚠️  Failed to analyze any repositories for user: {}", username);
+            tracing::warn!("Failed to analyze any repositories for user: {}", username);
             return Ok(self.create_empty_analysis(&profile));
         }
 
@@ -162,7 +162,7 @@ impl GitHubAnalyzer {
         // Cache the result
         self.cache.insert(username.to_string(), analysis.clone());
         
-        println!("✅ Analysis complete!");
+        tracing::info!("Analysis complete for user: {}", username);
         Ok(analysis)
     }
 
@@ -202,7 +202,7 @@ impl GitHubAnalyzer {
             let repos = match repos_result {
                 Ok(repos) => repos,
                 Err(e) => {
-                    eprintln!("Failed to fetch repositories for {}: {}", username, e);
+                    tracing::error!("Failed to fetch repositories for {}: {}", username, e);
                     break;
                 }
             };
@@ -237,7 +237,7 @@ impl GitHubAnalyzer {
         let mut analyses = Vec::new();
 
         for (index, repo) in repos.iter().enumerate() {
-            println!("🔬 Analyzing repository {}/{}: {}", index + 1, repos.len(), repo.name);
+            tracing::debug!("Analyzing repository {}/{}: {}", index + 1, repos.len(), repo.name);
             
             let analysis = self.analyze_repository_simple(repo).await;
             analyses.push(analysis);
@@ -388,7 +388,7 @@ impl GitHubAnalyzer {
             });
         }
 
-        specializations.sort_by(|a, b| b.confidence_score.partial_cmp(&a.confidence_score).unwrap());
+        specializations.sort_by(|a, b| b.confidence_score.partial_cmp(&a.confidence_score).unwrap_or(std::cmp::Ordering::Equal));
         specializations
     }
 
@@ -554,7 +554,7 @@ impl GitHubAnalyzer {
         
         // Simple scoring based on repository descriptions and structure
         let documented_repos = repo_analyses.iter()
-            .filter(|r| r.description.is_some() && !r.description.as_ref().unwrap().is_empty())
+            .filter(|r| r.description.as_ref().map_or(false, |desc| !desc.is_empty()))
             .count() as f64;
             
         (documented_repos / repo_analyses.len() as f64 * 100.0).min(100.0)
@@ -616,8 +616,10 @@ impl GitHubAnalyzer {
         let mut score: f64 = 0.0;
         
         // Has description
-        if repo.description.is_some() && !repo.description.as_ref().unwrap().is_empty() {
-            score += 50.0;
+        if let Some(desc) = &repo.description {
+            if !desc.is_empty() {
+                score += 50.0;
+            }
         }
         
         // Assume README exists if repo has description (simplified)
