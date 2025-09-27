@@ -42,8 +42,8 @@ const ProfilePage = () => {
     location: "San Francisco, CA",
     email: "alex.johnson@email.com",
     avatar: "/placeholder.svg",
-    bio: "Passionate full-stack developer with 8+ years of experience building scalable web applications. I love turning complex problems into simple, beautiful solutions.",
-    availability: "Available for freelance",
+    bio: "Passionate full-stack developer with 8+ years of experience in building enterprise-scale applications. Proven track record of leading development teams and delivering high-impact software solutions.",
+    availability: "Open to new opportunities",
     joinDate: "January 2019",
     verified: true,
     skills: [
@@ -55,50 +55,50 @@ const ProfilePage = () => {
       { name: "AWS", level: 80, years: 3 }
     ],
     stats: {
-      projectsCompleted: 127,
-      clientSatisfaction: 98,
-      responseTime: "< 2 hours",
-      totalEarnings: "$156K"
+      projectsCompleted: 47,
+      verificationScore: 98,
+      responseTime: "< 24 hours",
+      yearsExperience: "8+"
     },
     recentProjects: [
       {
-        title: "E-commerce Platform",
-        description: "Built a complete e-commerce solution with React and Node.js",
+        title: "Enterprise CRM System",
+        description: "Led development of customer relationship management platform for 500+ users",
         tech: ["React", "Node.js", "PostgreSQL"],
-        status: "Completed",
+        status: "Delivered",
         rating: 5
       },
       {
-        title: "Mobile Banking App",
-        description: "Developed secure mobile banking application",
-        tech: ["React Native", "Express", "MongoDB"],
-        status: "In Progress",
+        title: "Real-time Trading Platform",
+        description: "Built high-frequency trading system with microsecond latency requirements",
+        tech: ["Next.js", "WebSocket", "Redis"],
+        status: "In Development",
         rating: null
       },
       {
-        title: "Data Analytics Dashboard",
-        description: "Created interactive dashboard for business analytics",
-        tech: ["Vue.js", "Python", "D3.js"],
-        status: "Completed",
+        title: "AI-Powered Analytics Suite",
+        description: "Developed machine learning pipeline for business intelligence insights",
+        tech: ["Python", "TensorFlow", "React"],
+        status: "Delivered",
         rating: 5
       }
     ],
     certifications: [
-      { name: "AWS Solutions Architect", issuer: "Amazon", year: 2023 },
-      { name: "React Developer Certification", issuer: "Meta", year: 2022 },
-      { name: "Google Cloud Professional", issuer: "Google", year: 2023 }
+      { name: "AWS Solutions Architect Professional", issuer: "Amazon", year: 2023 },
+      { name: "Certified Kubernetes Administrator", issuer: "CNCF", year: 2022 },
+      { name: "Google Cloud Professional Developer", issuer: "Google", year: 2023 }
     ],
     testimonials: [
       {
-        text: "Alex delivered exceptional work on our e-commerce platform. Highly recommended!",
+        text: "Alex is an exceptional team lead who consistently delivers high-quality solutions. A valuable asset to any engineering team.",
         author: "Sarah Chen",
-        company: "StartupX",
+        company: "TechCorp Inc.",
         rating: 5
       },
       {
-        text: "Professional, reliable, and extremely skilled. Will definitely work with Alex again.",
+        text: "Outstanding technical skills and leadership abilities. Alex successfully led our most critical product launch.",
         author: "Michael Rodriguez",
-        company: "TechFlow",
+        company: "DataFlow Systems",
         rating: 5
       }
     ]
@@ -223,7 +223,7 @@ const ProfilePage = () => {
                   </Button>
                   <Button size="sm" variant="outline" className="border-gray-600 hover:bg-gray-800">
                     <Download className="w-4 h-4 mr-2" />
-                    Resume
+                    Download CV
                   </Button>
                 </div>
               </div>
@@ -234,19 +234,19 @@ const ProfilePage = () => {
           <BentoCard className="lg:col-span-1 xl:col-span-1" id="projects">
             <CardContent className="p-6 text-center">
               <div className="text-3xl font-bold text-white mb-2">{profileData.stats.projectsCompleted}</div>
-              <div className="text-sm text-gray-400 mb-2">Projects Completed</div>
+              <div className="text-sm text-gray-400 mb-2">Projects Delivered</div>
               <div className="flex justify-center">
                 <Briefcase className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
 
-          <BentoCard className="lg:col-span-1 xl:col-span-1" id="satisfaction">
+          <BentoCard className="lg:col-span-1 xl:col-span-1" id="verification">
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-white mb-2">{profileData.stats.clientSatisfaction}%</div>
-              <div className="text-sm text-gray-400 mb-2">Client Satisfaction</div>
+              <div className="text-3xl font-bold text-white mb-2">{profileData.stats.verificationScore}%</div>
+              <div className="text-sm text-gray-400 mb-2">Verification Score</div>
               <div className="flex justify-center">
-                <Star className="w-5 h-5 text-gray-300" />
+                <CheckCircle className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
@@ -261,12 +261,12 @@ const ProfilePage = () => {
             </CardContent>
           </BentoCard>
 
-          <BentoCard className="lg:col-span-1 xl:col-span-1" id="earnings">
+          <BentoCard className="lg:col-span-1 xl:col-span-1" id="experience">
             <CardContent className="p-6 text-center">
-              <div className="text-2xl font-bold text-white mb-2">{profileData.stats.totalEarnings}</div>
-              <div className="text-sm text-gray-400 mb-2">Total Earnings</div>
+              <div className="text-2xl font-bold text-white mb-2">{profileData.stats.yearsExperience}</div>
+              <div className="text-sm text-gray-400 mb-2">Years Experience</div>
               <div className="flex justify-center">
-                <TrendingUp className="w-5 h-5 text-gray-300" />
+                <Award className="w-5 h-5 text-gray-300" />
               </div>
             </CardContent>
           </BentoCard>
@@ -299,12 +299,12 @@ const ProfilePage = () => {
             </CardContent>
           </BentoCard>
 
-          {/* Recent Projects */}
+          {/* Key Projects */}
           <BentoCard className="md:col-span-2 lg:col-span-2 xl:col-span-2 md:row-span-2" id="projects-list">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
                 <Briefcase className="w-5 h-5 text-gray-300" />
-                <span>Recent Projects</span>
+                <span>Key Projects</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -320,7 +320,7 @@ const ProfilePage = () => {
                     <h4 className="font-semibold text-gray-200">{project.title}</h4>
                     <Badge 
                       variant="secondary" 
-                      className={project.status === 'Completed' ? 'bg-white/20 text-white' : 'bg-gray-500/20 text-gray-300'}
+                      className={project.status === 'Delivered' ? 'bg-white/20 text-white' : 'bg-gray-500/20 text-gray-300'}
                     >
                       {project.status}
                     </Badge>
@@ -394,7 +394,7 @@ const ProfilePage = () => {
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
                 <MessageCircle className="w-5 h-5 text-gray-300" />
-                <span>Client Testimonials</span>
+                <span>Recommendations</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -431,15 +431,15 @@ const ProfilePage = () => {
             <CardContent className="space-y-3">
               <Button className="w-full justify-start bg-white text-black hover:bg-gray-200">
                 <Mail className="w-4 h-4 mr-2" />
-                Send Message
+                Contact Candidate
               </Button>
               <Button variant="outline" className="w-full justify-start border-gray-600 hover:bg-gray-800">
                 <Calendar className="w-4 h-4 mr-2" />
-                Schedule Call
+                Schedule Interview
               </Button>
               <Button variant="outline" className="w-full justify-start border-gray-600 hover:bg-gray-800">
                 <FileText className="w-4 h-4 mr-2" />
-                View Portfolio
+                Download Resume
               </Button>
             </CardContent>
           </BentoCard>
