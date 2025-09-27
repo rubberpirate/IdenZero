@@ -234,10 +234,10 @@ const JobBrowser: React.FC<JobBrowserProps> = ({ refreshTrigger }) => {
             </div>
             
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="bg-white/5 border-gray-700 text-white">
+              <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-900 border-gray-600">
                 <SelectItem value="all">All Categories</SelectItem>
                 {getUniqueCategories().map(category => (
                   <SelectItem key={category} value={category}>

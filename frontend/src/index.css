@@ -363,3 +363,112 @@
     box-shadow: 0 0 0 4px white !important;
   }
 }
+
+/* Ensure Select component has proper contrast in dark theme */
+[data-radix-select-content] {
+  background-color: rgb(17 24 39) !important; /* gray-900 */
+  border-color: rgb(75 85 99) !important; /* gray-600 */
+  color: white !important;
+}
+
+[data-radix-select-item] {
+  color: white !important;
+}
+
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-highlighted] {
+  background-color: rgb(55 65 81) !important; /* gray-700 */
+  color: white !important;
+}
+
+/* Ensure placeholder text is visible */
+[data-radix-select-trigger] [data-placeholder] {
+  color: rgb(156 163 175) !important; /* gray-400 */
+}
+
+/* Enhanced Select component visibility */
+.select-enhanced {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.select-enhanced:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.select-enhanced:focus {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+/* Select dropdown content enhanced visibility */
+.select-content-enhanced {
+  background: rgba(17, 24, 39, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(75, 85, 99, 0.8) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.select-item-enhanced {
+  color: white !important;
+  padding: 8px 12px !important;
+  transition: all 0.2s ease;
+}
+
+.select-item-enhanced:hover,
+.select-item-enhanced[data-highlighted] {
+  background: rgba(55, 65, 81, 0.8) !important;
+  color: white !important;
+}
+
+/* Global Select component improvements for all instances */
+[data-radix-select-content] {
+  z-index: 9999 !important;
+}
+
+/* Ensure all select items have proper contrast */
+[data-radix-select-item] {
+  min-height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Better focus and hover states */
+[data-radix-select-item]:focus,
+[data-radix-select-item][data-highlighted] {
+  background-color: rgba(55, 65, 81, 0.9) !important;
+  outline: none !important;
+}
+
+/* Improved select trigger appearance */
+[data-radix-select-trigger] {
+  min-height: 40px !important;
+}
+
+/* Ensure proper text contrast in all themes */
+.dark [data-radix-select-content],
+[data-theme="dark"] [data-radix-select-content] {
+  background-color: rgb(17, 24, 39) !important;
+  border-color: rgb(75, 85, 99) !important;
+}
+
+.dark [data-radix-select-item],
+[data-theme="dark"] [data-radix-select-item] {
+  color: white !important;
+}
+
+/* Account type specific enhancements */
+.select-account-type [data-radix-select-item] {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid rgba(75, 85, 99, 0.3) !important;
+}
+
+.select-account-type [data-radix-select-item]:last-child {
+  border-bottom: none !important;
+}

@@ -26,7 +26,8 @@ import {
   Calendar,
   ExternalLink,
   Copy,
-  Hash
+  Hash,
+  Wallet
 } from 'lucide-react';
 import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
@@ -34,6 +35,7 @@ import PostJobForm from '@/components/PostJobForm';
 import JobListings from '@/components/JobListings';
 import JobBrowser from '@/components/JobBrowser';
 import WalletConnection from '@/components/WalletConnection';
+import WalletStatus from '@/components/WalletStatus';
 import { jobPortalContract, JobStatus } from '@/utils/contract';
 import { sbtContract, Certificate } from '@/utils/sbtContract';
 import { SBTUNI_CONTRACT_ADDRESS } from '@/config/contract';
@@ -1667,7 +1669,7 @@ const SimpleDashboard = () => {
         transition={{ duration: 0.2, ease: "easeOut" }}
         className="fixed left-0 top-0 h-full w-60 bg-black border-r border-gray-800 z-50 overflow-y-auto"
       >
-        <div className="p-6">
+        <div className="p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-12">
             <div>
               <h1 className="text-lg font-light text-white">IdenZero</h1>
@@ -1683,7 +1685,7 @@ const SimpleDashboard = () => {
             </Button>
           </div>
           
-          <nav className="space-y-1">
+          <nav className="space-y-1 flex-1">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -1707,6 +1709,9 @@ const SimpleDashboard = () => {
               );
             })}
           </nav>
+          
+          {/* Wallet Status Component */}
+          <WalletStatus />
         </div>
       </motion.div>
 
