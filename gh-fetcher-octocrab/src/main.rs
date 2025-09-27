@@ -107,61 +107,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         println!("{}", "=".repeat(80));
-    }
-
-    println!("👋 Thank you for using TrustHire Skill Analyzer!");
-    Ok(())
-}
-
-    loop {
-        println!("\n📝 Enter GitHub username to analyze (or 'quit' to exit):");
-        print!("> ");
-        io::stdout().flush().unwrap();
-        
-        let mut username = String::new();
-        io::stdin().read_line(&mut username).unwrap();
-        let username = username.trim();
-        
-        if username.is_empty() {
-            continue;
-        }
-        
-        if username == "quit" {
-            break;
-        }
-
-        // Optional wallet address
-        println!("💳 Enter wallet address (optional, press Enter to skip):");
-        print!("> ");
-        io::stdout().flush().unwrap();
-        
-        let mut wallet = String::new();
-        io::stdin().read_line(&mut wallet).unwrap();
-        let wallet = wallet.trim();
-        let wallet_address = if wallet.is_empty() { None } else { Some(wallet.to_string()) };
-
-        let profile = UserProfile {
-            github_username: username.to_string(),
-            wallet_address,
-        };
-
-        println!("\n🔍 Analyzing GitHub profile: {}", username);
-        println!("This may take a few moments...\n");
-
-        match analyzer.analyze(profile).await {
-            Ok(analysis) => {
-                display_analysis(&analysis);
-            }
-            Err(e) => {
-                eprintln!("❌ Analysis failed: {}", e);
-                continue;
-            }
-        }
-
         println!("{}", "=".repeat(80));
     }
 
-    println!("👋 Thank you for using TrustHire Skill Analyzer!");
+    println!("👋 Thank you for using IdenZero Skill Analyzer!");
     Ok(())
 }
 
@@ -226,26 +175,6 @@ fn display_analysis(analysis: &idenzero_analyzer::SkillAnalysis) {
                 repo.architecture_score,
                 repo.documentation_score,
                 repo.testing_coverage
-            );
-        }
-    }
-    println!();
-
-    // Languages Skills
-    println!("🔧 Programming Languages:");
-    println!("-------------------------");
-    if analysis.language_breakdown.is_empty() {
-        println!("   No language data found");
-    } else {
-        let mut sorted_langs: Vec<_> = analysis.language_breakdown.iter().collect();
-        sorted_langs.sort_by(|a, b| b.1.score.partial_cmp(&a.1.score).unwrap());
-        
-        for (lang, skill) in sorted_langs.iter().take(10) {
-            println!("   {:15} {:.1}/100 ({} projects, {} commits)", 
-                lang, 
-                skill.score,
-                skill.project_count,
-                skill.commit_count
             );
         }
     }

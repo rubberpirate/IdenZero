@@ -1,24 +1,30 @@
 use warp::{Filter, Reply};
 use serde_json;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
+use tokio::sync::Mutex;
 
 use crate::improved_analyzer::{ImprovedAnalyzer, AnalysisRequest, AnalysisDepth, AnalysisResponse};
+use crate::streamlined_analyzer::StreamlinedAnalyzer;
 
 pub struct ApiServer {
     analyzer: Arc<Mutex<ImprovedAnalyzer>>,
+    streamlined_analyzer: Arc<Mutex<StreamlinedAnalyzer>>,
 }
 
 impl ApiServer {
     pub fn new(github_token: String) -> Result<Self, Box<dyn std::error::Error>> {
-        let analyzer = ImprovedAnalyzer::new(github_token)?;
+        let analyzer = ImprovedAnalyzer::new(github_token.clone())?;
+        let streamlined_analyzer = StreamlinedAnalyzer::new(github_token)?;
         Ok(Self {
             analyzer: Arc::new(Mutex::new(analyzer)),
+            streamlined_analyzer: Arc::new(Mutex::new(streamlined_analyzer)),
         })
     }
 
     pub async fn serve(self) {
         let analyzer = self.analyzer.clone();
+        let streamlined_analyzer = self.streamlined_analyzer.clone();
         
         // CORS headers
         let cors = warp::cors()
@@ -33,9 +39,15 @@ impl ApiServer {
                 warp::reply::json(&serde_json::json!({
                     "status": "healthy",
                     "timestamp": chrono::Utc::now().to_rfc3339(),
-                    "service": "trusthire-analyzer"
+                    "service": "idenzero-analyzer"
                 }))
             });
+
+        // Streamlined profile endpoint - NEW
+        let streamlined = warp::path!("streamlined" / String)
+            .and(warp::get())
+            .and(with_streamlined_analyzer(streamlined_analyzer.clone()))
+            .and_then(handle_streamlined_profile);
 
         // Main analysis endpoint
         let analyze = warp::path("analyze")
@@ -68,13 +80,14 @@ impl ApiServer {
             .and(warp::fs::dir("../demo-ui"));
 
         let api = warp::path("api")
-            .and(health.or(analyze).or(quick_analyze).or(frontend_profile).or(compare))
+            .and(health.or(streamlined).or(analyze).or(quick_analyze).or(frontend_profile).or(compare))
             .with(cors.clone());
 
         let routes = api.or(demo).with(cors);
 
-        println!("🚀 TrustHire API Server starting on http://localhost:3030");
+        println!("🚀 IdenZero API Server starting on http://localhost:3030");
         println!("📊 Health check: http://localhost:3030/api/health");
+        println!("⚡ Streamlined profile: http://localhost:3030/api/streamlined/username");
         println!("🧑‍💻 Quick analysis: http://localhost:3030/api/quick/username");
         println!("🎨 Frontend profile: http://localhost:3030/api/profile/username");
         println!("🌐 Demo UI: http://localhost:3030/demo");
@@ -89,12 +102,37 @@ fn with_analyzer(analyzer: Arc<Mutex<ImprovedAnalyzer>>) -> impl Filter<Extract 
     warp::any().map(move || analyzer.clone())
 }
 
+fn with_streamlined_analyzer(analyzer: Arc<Mutex<StreamlinedAnalyzer>>) -> impl Filter<Extract = (Arc<Mutex<StreamlinedAnalyzer>>,), Error = std::convert::Infallible> + Clone {
+    warp::any().map(move || analyzer.clone())
+}
+
+async fn handle_streamlined_profile(
+    username: String,
+    analyzer: Arc<Mutex<StreamlinedAnalyzer>>,
+) -> Result<impl Reply, warp::Rejection> {
+    let result = {
+        let mut analyzer = analyzer.lock().await;
+        analyzer.get_profile(username.clone()).await
+    };
+    
+    match result {
+        Ok(profile) => Ok(warp::reply::json(&serde_json::json!({
+            "success": true,
+            "profile": profile
+        }))),
+        Err(e) => Ok(warp::reply::json(&serde_json::json!({
+            "success": false,
+            "error": format!("Failed to analyze {}: {}", username, e)
+        })))
+    }
+}
+
 async fn handle_analyze(
     request: AnalysisRequest,
     analyzer: Arc<Mutex<ImprovedAnalyzer>>,
 ) -> Result<impl Reply, warp::Rejection> {
     let response = {
-        let mut analyzer = analyzer.lock().unwrap();
+        let mut analyzer = analyzer.lock().await;
         analyzer.analyze_user(request).await
     };
     
@@ -113,7 +151,7 @@ async fn handle_quick_analyze(
     };
 
     let response = {
-        let mut analyzer = analyzer.lock().unwrap();
+        let mut analyzer = analyzer.lock().await;
         analyzer.analyze_user(request).await
     };
     
@@ -132,7 +170,7 @@ async fn handle_frontend_profile(
     };
 
     let response = {
-        let mut analyzer = analyzer.lock().unwrap();
+        let mut analyzer = analyzer.lock().await;
         analyzer.analyze_user(request).await
     };
     
@@ -158,7 +196,7 @@ async fn handle_compare(
     analyzer: Arc<Mutex<ImprovedAnalyzer>>,
 ) -> Result<impl Reply, warp::Rejection> {
     let response = {
-        let mut analyzer = analyzer.lock().unwrap();
+        let mut analyzer = analyzer.lock().await;
         analyzer.compare_developers(request.usernames).await
     };
     

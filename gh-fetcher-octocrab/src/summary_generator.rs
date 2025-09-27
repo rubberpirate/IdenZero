@@ -1,4 +1,4 @@
-use crate::analyzer::{SkillAnalysis, RepositoryAnalysis};
+use crate::analyzer::SkillAnalysis;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -137,16 +137,16 @@ impl SummaryGenerator {
         // Determine primary work style
         let max_category = scores.iter()
             .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
-            .map(|(k, _)| k.as_str());
+            .map(|(k, _)| k.clone());
 
         let frontend_score = scores.get("frontend").unwrap_or(&0.0);
         let backend_score = scores.get("backend").unwrap_or(&0.0);
         
         match max_category {
             Some("blockchain") => WorkStyle::Backend, // Most blockchain devs are backend-focused
-            Some("frontend") if backend_score > 50.0 => WorkStyle::FullStack,
+            Some("frontend") if *backend_score > 50.0 => WorkStyle::FullStack,
             Some("frontend") => WorkStyle::Frontend,
-            Some("backend") if frontend_score > 50.0 => WorkStyle::FullStack,
+            Some("backend") if *frontend_score > 50.0 => WorkStyle::FullStack,
             Some("backend") => WorkStyle::Backend,
             Some("devops") => WorkStyle::DevOps,
             Some("data") => WorkStyle::DataScience,
