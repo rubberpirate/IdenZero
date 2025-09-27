@@ -119,12 +119,6 @@ $RECYCLE.BIN/
 .env.production.local
 .env.*.local
 
-# Configuration files with secrets
-config.json
-secrets.json
-.secrets
-credentials.json
-
 # API keys and tokens
 .api_keys
 .tokens
@@ -132,29 +126,12 @@ github_token.txt
 
 # =============
 # GENERATED FILES
-# =============
-# Output files
-*.json
-analysis_*.json
-skill_analysis_*.json
-portfolio_*.json
-resume_*.json
-output_*.json
+# ==========
 
 # Generated HTML
 generated_*.html
 output_*.html
 portfolio_*.html
-
-# Generated images/media
-screenshots/
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
-*.webp
-*.pdf
 
 # =============
 # CACHE & TEMP
@@ -189,40 +166,8 @@ errors.log
 crash.log
 
 # =============
-# DATABASES
-# =============
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-database.json
 
-# =============
-# SECURITY
-# =============
-# Private keys
-*.pem
-*.key
-*.p12
-*.crt
-*.cert
 
-# SSH keys
-id_rsa
-id_dsa
-id_ecdsa
-id_ed25519
-
-# =============
-# ARCHIVES
-# =============
-# Compressed files
-*.zip
-*.tar
-*.tar.gz
-*.tar.bz2
-*.rar
-*.7z
 
 # Backup files
 *.bak
@@ -252,18 +197,7 @@ htmlcov/
 .dockerignore
 docker-compose.override.yml
 
-# =============
-# PROJECT SPECIFIC
-# =============
-# Portfolio generation outputs
-portfolio.html
-resume.html
-bento_resume.html
-
-# Analysis outputs
-github_analysis.json
-ethglobal_report.json
-trusthire_analysis.json
+# ============
 
 # Demo files (keep templates, ignore generated)
 demo-ui/generated_*.html
