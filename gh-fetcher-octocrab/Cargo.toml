@@ -1,5 +1,5 @@
 [package]
-name = "trusthire-skill-analyzer"
+name = "idenzero-analyzer"
 version = "0.1.0"
 edition = "2021"
 
@@ -19,3 +19,5 @@ hex = "0.4"
 futures = "0.3"
 rayon = "1.7"
 rand = "0.8"
+warp = "0.3"
+tokio-test = "0.4"
