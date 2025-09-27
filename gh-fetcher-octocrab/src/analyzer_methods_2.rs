@@ -77,12 +77,14 @@
         let mut score = 0.0;
 
         // Repository has description
-        if repo.description.is_some() && !repo.description.as_ref().unwrap().is_empty() {
-            let desc_len = repo.description.as_ref().unwrap().len();
-            if desc_len > 20 {
-                score += 25.0;
-            } else if desc_len > 5 {
-                score += 15.0;
+        if let Some(description) = &repo.description {
+            if !description.is_empty() {
+                let desc_len = description.len();
+                if desc_len > 20 {
+                    score += 25.0;
+                } else if desc_len > 5 {
+                    score += 15.0;
+                }
             }
         }
 
