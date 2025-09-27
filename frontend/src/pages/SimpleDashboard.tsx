@@ -16,10 +16,18 @@ import {
   CheckCircle,
   Clock,
   X,
-  Settings
+  Settings,
+  Briefcase,
+  Plus,
+  Edit3,
+  Eye,
+  Users
 } from 'lucide-react';
 import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
+import PostJobForm from '@/components/PostJobForm';
+import JobListings from '@/components/JobListings';
+import WalletConnection from '@/components/WalletConnection';
 
 const SimpleDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +39,10 @@ const SimpleDashboard = () => {
   const [githubLoading, setGithubLoading] = useState(false);
   const [githubError, setGithubError] = useState<string | null>(null);
   const [githubUserData, setGithubUserData] = useState<any>(null);
+  
+  // Job management state
+  const [showPostJobForm, setShowPostJobForm] = useState(false);
+  const [jobsRefreshTrigger, setJobsRefreshTrigger] = useState(0);
 
   // Check for existing GitHub connection on mount
   React.useEffect(() => {
@@ -171,6 +183,23 @@ const SimpleDashboard = () => {
     initiateGithubOAuth();
   };
 
+  // Job management handlers
+  const handlePostJobSuccess = (jobId: number) => {
+    console.log('Job posted successfully with ID:', jobId);
+    setShowPostJobForm(false);
+    // Refresh job listings
+    setJobsRefreshTrigger(prev => prev + 1);
+  };
+
+  const handlePostJobCancel = () => {
+    setShowPostJobForm(false);
+  };
+
+  const handleEditJob = (jobId: number) => {
+    console.log('Edit job:', jobId);
+    // TODO: Implement job editing functionality
+  };
+
   // Get GitHub commits (would fetch from GitHub API in real implementation)
   const getGithubCommits = () => {
     if (!githubConnected || !githubUserData) return [];
@@ -257,6 +286,7 @@ const SimpleDashboard = () => {
 
   const sidebarItems = [
     { id: 'profile', label: 'Profile', icon: User },
+    { id: 'jobs', label: 'Job Management', icon: Briefcase },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -955,6 +985,107 @@ const SimpleDashboard = () => {
               </Card>
             </section>
           </div>
+        );
+
+      case 'jobs':
+        return (
+          <WalletConnection>
+            <div className="p-8 space-y-12">
+            {showPostJobForm ? (
+              <div>
+                <div className="mb-8">
+                  <h1 className="text-2xl font-light text-white mb-2">Post New Job</h1>
+                  <p className="text-gray-400 text-sm">Create a new job listing to find qualified candidates</p>
+                </div>
+                <PostJobForm 
+                  onCancel={handlePostJobCancel}
+                  onSuccess={handlePostJobSuccess}
+                />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <h1 className="text-2xl font-light text-white mb-2">Job Management</h1>
+                  <p className="text-gray-400 text-sm">Post and manage your job listings</p>
+                </div>
+                
+                {/* Job Management Actions */}
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Your Job Listings</h2>
+                    <Button 
+                      onClick={() => setShowPostJobForm(true)}
+                      className="bg-white text-black hover:bg-gray-200"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Post New Job
+                    </Button>
+                  </div>
+                  
+                  <JobListings 
+                    refreshTrigger={jobsRefreshTrigger}
+                    onEditJob={handleEditJob}
+                  />
+                </section>
+
+                {/* Quick Stats */}
+                <section className="space-y-6">
+                  <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Job Statistics</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                      <Briefcase className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-white">0</div>
+                      <div className="text-sm text-gray-400">Active Jobs</div>
+                    </Card>
+                    
+                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                      <Users className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-white">0</div>
+                      <div className="text-sm text-gray-400">Total Applications</div>
+                    </Card>
+                    
+                    <Card className="bg-white/5 border-gray-800 p-6 text-center">
+                      <Eye className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-white">0</div>
+                      <div className="text-sm text-gray-400">Job Views</div>
+                    </Card>
+                  </div>
+                </section>
+
+                {/* Help Section */}
+                <section className="space-y-6">
+                  <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">Getting Started</h2>
+                  <Card className="bg-white/5 border-gray-800 p-6">
+                    <h3 className="text-white font-medium mb-4">How to post your first job</h3>
+                    <div className="space-y-3 text-sm text-gray-400">
+                      <div className="flex items-start">
+                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</div>
+                        <div>
+                          <div className="text-white font-medium">Connect your wallet</div>
+                          <div>Make sure you have a Web3 wallet connected to post jobs on the blockchain</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</div>
+                        <div>
+                          <div className="text-white font-medium">Fill out job details</div>
+                          <div>Provide comprehensive information about the role, requirements, and compensation</div>
+                        </div>
+                      </div>
+                      <div className="flex items-start">
+                        <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</div>
+                        <div>
+                          <div className="text-white font-medium">Review and publish</div>
+                          <div>Your job will be stored on the blockchain and visible to potential candidates</div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </section>
+              </>
+            )}
+            </div>
+          </WalletConnection>
         );
 
       default:
