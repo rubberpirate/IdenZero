@@ -4,16 +4,11 @@ import { SelfBackendVerifier, AllIds, DefaultConfigStore } from "@selfxyz/core";
 const app = express();
 
 // Enable CORS for frontend requests
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://308955f37013.ngrok-free.app'], // Vite dev server and ngrok
-  credentials: true
-},{
-  origin: ['http://localhost:5173', 'https://308955f37013.ngrok-free.app'], // Vihttps://playground.self.xyz/api/verifyue
-}));
+app.use(cors());
 
 const selfBackendVerifier = new SelfBackendVerifier(
   "self-zkverify-workshop",
-  "https://308955f37013.ngrok-free.app/verify",
+  "http://82.177.167.169/verify",
   true, // mockPassport: true for testing with mock passport
   AllIds,
   new DefaultConfigStore({
