@@ -527,9 +527,19 @@ const SimpleDashboard = () => {
             >
               <Menu className="h-4 w-4" />
             </Button>
-            <div className="text-right">
-              <div className="text-xs text-gray-500 uppercase tracking-wider">
-                {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={() => navigate('/profile')}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <User className="h-4 w-4 mr-2" />
+                See Profile
+              </Button>
+              <div className="text-right">
+                <div className="text-xs text-gray-500 uppercase tracking-wider">
+                  {activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}
+                </div>
               </div>
             </div>
           </div>

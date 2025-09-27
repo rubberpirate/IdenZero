@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
 import LandingPage from "./pages/LandingPage";
 import SimpleDashboard from "./pages/SimpleDashboard";
+import ProfilePage from "./pages/ProfilePage";
 import { Button } from "./components/ui/button";
 
 
@@ -13,7 +14,7 @@ import { Button } from "./components/ui/button";
 // Layout component that includes the Navbar
 const Layout = () => {
   const location = useLocation();
-  const hideNavbarRoutes = ['/dashboard'];
+  const hideNavbarRoutes = ['/dashboard', '/profile'];
   const shouldShowNavbar = !hideNavbarRoutes.some(route => location.pathname.startsWith(route));
 
   return (
@@ -38,6 +39,7 @@ const App = () => {
             <Route path="/home" element={<LandingPage />} />
             <Route path="/market" element={<Index />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
+            <Route path="/profile" element={<ProfilePage />} />
             {/* 404 route */}
             <Route path="*" element={
               <div className="flex flex-col items-center justify-center min-h-[60vh]">
