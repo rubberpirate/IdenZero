@@ -8,6 +8,7 @@ import LandingPage from "./pages/LandingPage";
 import SimpleDashboard from "./pages/SimpleDashboard";
 import ProfilePage from "./pages/ProfilePage";
 import { Button } from "./components/ui/button";
+import VerificationPage from "./components/VerificationPage";
 
 
 
@@ -40,6 +41,7 @@ const App = () => {
             <Route path="/market" element={<Index />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/verify" element={<VerificationPage/>}></Route>
             {/* 404 route */}
             <Route path="*" element={
               <div className="flex flex-col items-center justify-center min-h-[60vh]">

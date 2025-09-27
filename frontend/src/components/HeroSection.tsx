@@ -103,8 +103,8 @@ const HeroSection = () => {
         
         {/* Container Content */}
         <div className="absolute inset-0 z-20 px-4 sm:px-4 md:px-6 lg:px-12 py-8 sm:py-8 md:py-12 lg:py-16 flex flex-col items-center justify-center">
-          {/* Redirect Notice for Logged-in Users */}
-          {false && (
+          {/* Redirect Notice for Logged-in Users - Currently disabled */}
+          {showRedirectNotice && (
             <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-background border border-border rounded-lg shadow-lg p-4 max-w-sm mx-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold">Welcome back!</h3>
@@ -171,7 +171,7 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-6 sm:pt-8 items-center w-full max-w-sm sm:max-w-none">
           <Button
             className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-full text-sm font-medium h-11 px-6 sm:px-7 flex items-center justify-center sm:mr-2"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/verify')}
           >
             Connect with Self 
             <img src="/self.png" alt="Self" className="ml-2 h-5 w-5 rounded-full" />
