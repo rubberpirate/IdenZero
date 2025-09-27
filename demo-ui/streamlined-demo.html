@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdenZero - Developer Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .example-btn {
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border: 1px solid #e1e5e9;
+            border-radius: 20px;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .profile-username {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .profile-summary {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        
+        .profile-body {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .languages-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+        
+        .language-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .language-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .language-bar {
+            flex: 1;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .language-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .tag {
+            padding: 8px 15px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .commits-list {
+            list-style: none;
+        }
+        
+        .commit-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .commit-item:last-child {
+            border-bottom: none;
+        }
+        
+        .commit-message {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .commit-meta {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .contributions-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .contribution {
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .contribution:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .contribution h4 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 14px;
+        }
+        
+        .contribution p {
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        .readme-insight {
+            background: #f8f9fa;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            font-style: italic;
+            color: #495057;
+            margin-top: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 IdenZero</h1>
+            <p>AI-Powered GitHub Developer Analysis</p>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-form">
+                <input type="text" id="username-input" class="search-input" placeholder="Enter GitHub username (e.g., octocat)">
+                <button id="search-btn" class="search-btn" onclick="analyzeUser()">Analyze Developer</button>
+            </div>
+            <div class="examples">
+                <span style="color: #6c757d; margin-right: 10px;">Try:</span>
+                <button class="example-btn" onclick="setUsername('octocat')">octocat</button>
+                <button class="example-btn" onclick="setUsername('gaearon')">gaearon</button>
+                <button class="example-btn" onclick="setUsername('sindresorhus')">sindresorhus</button>
+                <button class="example-btn" onclick="setUsername('tj')">tj</button>
+                <button class="example-btn" onclick="setUsername('addyosmani')">addyosmani</button>
+            </div>
+        </div>
+        
+        <div id="results-container"></div>
+    </div>
+
+    <script>
+        class IdenZeroAPI {
+            constructor(baseUrl = 'http://localhost:3030/api') {
+                this.baseUrl = baseUrl;
+                this.cache = new Map();
+            }
+
+            async getStreamlinedProfile(username) {
+                // Check cache first
+                if (this.cache.has(username)) {
+                    return this.cache.get(username);
+                }
+
+                const response = await fetch(`${this.baseUrl}/streamlined/${username}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.cache.set(username, data.profile);
+                    return data.profile;
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            }
+        }
+
+        const api = new IdenZeroAPI();
+
+        function setUsername(username) {
+            document.getElementById('username-input').value = username;
+            analyzeUser();
+        }
+
+        async function analyzeUser() {
+            const username = document.getElementById('username-input').value.trim();
+            if (!username) return;
+
+            const searchBtn = document.getElementById('search-btn');
+            const resultsContainer = document.getElementById('results-container');
+            
+            // Show loading state
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Analyzing...';
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing ${username}'s GitHub profile...</p>
+                    <small>This may take a few moments</small>
+                </div>
+            `;
+
+            try {
+                const profile = await api.getStreamlinedProfile(username);
+                displayProfile(profile);
+            } catch (error) {
+                displayError(error.message, username);
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Analyze Developer';
+            }
+        }
+
+        function displayProfile(profile) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = `
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-username">@${profile.username}</div>
+                        <div class="profile-summary">${profile.summary}</div>
+                    </div>
+                    
+                    <div class="profile-body">
+                        <div class="section">
+                            <h3>🏆 Top Languages</h3>
+                            <div class="languages-grid">
+                                ${profile.top_languages.map(lang => `
+                                    <div class="language-item">
+                                        <div class="language-info">
+                                            <div class="language-color" style="background-color: ${getLanguageColor(lang.name)}"></div>
+                                            <span><strong>${lang.name}</strong></span>
+                                        </div>
+                                        <div class="language-bar">
+                                            <div class="language-fill" style="width: ${lang.percentage}%; background-color: ${getLanguageColor(lang.name)}"></div>
+                                        </div>
+                                        <span>${lang.percentage.toFixed(1)}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <h3>💡 Proficiency</h3>
+                            <div class="tags">
+                                ${profile.proficiency.map(skill => `<span class="tag">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <h3>📝 Recent Commits</h3>
+                            <ul class="commits-list">
+                                ${profile.recent_commits.slice(0, 8).map(commit => `
+                                    <li class="commit-item">
+                                        <div class="commit-message">${commit.message}</div>
+                                        <div class="commit-meta">
+                                            📁 ${commit.repository} • 
+                                            📅 ${new Date(commit.date).toLocaleDateString()}
+                                        </div>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div class="section">
+                            <h3>🌟 Key Contributions</h3>
+                            <div class="contributions-grid">
+                                ${profile.key_contributions.map(contrib => `
+                                    <div class="contribution">
+                                        <h4>
+                                            ${contrib.repository}
+                                            <span class="stars">⭐ ${contrib.stars.toLocaleString()}</span>
+                                            ${contrib.primary_language ? `<span style="color: ${getLanguageColor(contrib.primary_language)}">${contrib.primary_language}</span>` : ''}
+                                        </h4>
+                                        <p>${contrib.description}</p>
+                                        ${contrib.readme_insights ? `
+                                            <div class="readme-insight">
+                                                💡 ${contrib.readme_insights}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="section">
+                            <h3>📊 GitHub Stats</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-value">${profile.github_stats.public_repos}</span>
+                                    <span class="stat-label">Public Repos</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">${profile.github_stats.followers}</span>
+                                    <span class="stat-label">Followers</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">${profile.github_stats.years_active.toFixed(1)}</span>
+                                    <span class="stat-label">Years Active</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-value">${(profile.github_stats.total_commits / 1000).toFixed(1)}k</span>
+                                    <span class="stat-label">Est. Commits</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayError(message, username) {
+            const container = document.getElementById('results-container');
+            container.innerHTML = `
+                <div class="profile-card">
+                    <div class="profile-body">
+                        <div class="error">
+                            <h3>❌ Analysis Failed</h3>
+                            <p><strong>Username:</strong> ${username}</p>
+                            <p><strong>Error:</strong> ${message}</p>
+                            <p><strong>Suggestions:</strong></p>
+                            <ul>
+                                <li>Check that the username is correct</li>
+                                <li>Ensure the GitHub profile is public</li>
+                                <li>Try again in a few moments (rate limits)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getLanguageColor(language) {
+            const colors = {
+                'Rust': '#dea584',
+                'TypeScript': '#3178c6',
+                'JavaScript': '#f1e05a',
+                'Python': '#3572a5',
+                'Solidity': '#AA6746',
+                'Go': '#00ADD8',
+                'Java': '#b07219',
+                'C++': '#f34b7d',
+                'C': '#555555',
+                'Swift': '#fa7343',
+                'Kotlin': '#F18E33',
+                'PHP': '#4F5D95',
+                'Ruby': '#701516',
+                'C#': '#239120',
+                'Dart': '#00B4AB',
+                'HTML': '#e34c26',
+                'CSS': '#1572B6',
+                'Shell': '#89e051',
+                'Vue': '#4FC08D',
+                'React': '#61DAFB'
+            };
+            return colors[language] || '#6366f1';
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('username-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeUser();
+            }
+        });
+
+        // Auto-focus the input field
+        document.getElementById('username-input').focus();
+    </script>
+</body>
+</html>

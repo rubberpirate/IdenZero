@@ -71,7 +71,7 @@ pub struct RepositoryAnalysis {
 }
 
 pub struct GitHubAnalyzer {
-    client: Octocrab,
+    pub client: Octocrab,
     cache: HashMap<String, SkillAnalysis>,
     language_weights: HashMap<String, f64>,
 }

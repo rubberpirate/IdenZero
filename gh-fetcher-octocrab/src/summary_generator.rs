@@ -137,7 +137,7 @@ impl SummaryGenerator {
         // Determine primary work style
         let max_category = scores.iter()
             .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
-            .map(|(k, _)| k.as_str());
+            .map(|(k, _)| k.clone());
 
         let frontend_score = scores.get("frontend").unwrap_or(&0.0);
         let backend_score = scores.get("backend").unwrap_or(&0.0);
