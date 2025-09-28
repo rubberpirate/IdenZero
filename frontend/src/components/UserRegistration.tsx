@@ -133,22 +133,34 @@ const UserRegistration: React.FC<UserRegistrationProps> = ({ onSuccess, onCancel
           </div>
 
           <div>
-            <Label htmlFor="userType" className="text-white mb-2 block">
+            <Label htmlFor="userType" className="text-white mb-2 block font-medium">
               Account Type *
             </Label>
             <Select onValueChange={(value) => updateFormData('userType', parseInt(value) as UserType)}>
-              <SelectTrigger className="bg-white/5 border-gray-700 text-white" disabled={isSubmitting}>
-                <SelectValue placeholder="Select your account type" />
+              <SelectTrigger className="bg-white/10 border-gray-600 text-white hover:bg-white/15 focus:border-gray-500 transition-colors" disabled={isSubmitting}>
+                <SelectValue placeholder="Select your account type" className="text-gray-300" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={UserType.JobSeeker.toString()}>
-                  Job Seeker - Looking for opportunities
+              <SelectContent className="bg-gray-900 border-gray-600">
+                <SelectItem value={UserType.JobSeeker.toString()} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                    <span className="font-medium">Job Seeker</span>
+                    <span className="text-gray-400 ml-2">- Looking for opportunities</span>
+                  </div>
                 </SelectItem>
-                <SelectItem value={UserType.Employer.toString()}>
-                  Employer - Posting job opportunities
+                <SelectItem value={UserType.Employer.toString()} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-3"></div>
+                    <span className="font-medium">Employer</span>
+                    <span className="text-gray-400 ml-2">- Posting job opportunities</span>
+                  </div>
                 </SelectItem>
-                <SelectItem value={UserType.Both.toString()}>
-                  Both - Looking for jobs and hiring
+                <SelectItem value={UserType.Both.toString()} className="text-white hover:bg-gray-700 focus:bg-gray-700">
+                  <div className="flex items-center">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                    <span className="font-medium">Both</span>
+                    <span className="text-gray-400 ml-2">- Looking for jobs and hiring</span>
+                  </div>
                 </SelectItem>
               </SelectContent>
             </Select>
