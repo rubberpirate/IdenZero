@@ -309,11 +309,11 @@ export const Navbar = () => { // Renamed from HeroHeader
                             </div>
 
                             {/* Profile section - fixed width */}
-                            <div className="hidden lg:flex items-center justify-end w-[140px]">
+                            {/* <div className="hidden lg:flex items-center justify-end w-[140px]">
                                 <Button onClick={() => navigate('/dashboard')} variant="ghost">
                                     Dashboard
                                 </Button>
-                            </div>
+                            </div> */}
                             <motion.button
                                 data-mobile-menu
                                 onClick={() => setMenuState(!menuState)}
