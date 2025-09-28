@@ -28,6 +28,7 @@ import {
   Copy,
   Hash
 } from 'lucide-react';
+import { idenZeroApi, type IdenZeroProfile } from '@/services/idenZeroApi';
 import { GithubConnectDialog } from '@/components/ui/github-connect-dialog';
 import { ContributionCalendar } from '@/components/ui/contribution-calendar';
 import PostJobForm from '@/components/PostJobForm';
@@ -72,6 +73,11 @@ const SimpleDashboard = () => {
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [showCertificateDetails, setShowCertificateDetails] = useState(false);
   const [copyNotification, setCopyNotification] = useState<string | null>(null);
+
+  // IdenZero profile state
+  const [idenZeroProfile, setIdenZeroProfile] = useState<IdenZeroProfile | null>(null);
+  const [idenZeroLoading, setIdenZeroLoading] = useState(false);
+  const [idenZeroError, setIdenZeroError] = useState<string | null>(null);
 
   // Check for existing GitHub connection on mount
   React.useEffect(() => {
@@ -125,6 +131,7 @@ const SimpleDashboard = () => {
       loadCurrentUser();
       loadJobStatistics();
       loadUserCertificates();
+      loadIdenZeroProfile(); // Load real profile data
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -336,6 +343,25 @@ const SimpleDashboard = () => {
     }
   };
 
+  // Load IdenZero profile data
+  const loadIdenZeroProfile = async (username: string = 'jayesh-kr') => {
+    setIdenZeroLoading(true);
+    setIdenZeroError(null);
+    
+    try {
+      console.log('🚀 Loading IdenZero profile for:', username);
+      const profile = await idenZeroApi.getStreamlinedProfile(username);
+      setIdenZeroProfile(profile);
+      console.log('🚀 Successfully loaded IdenZero profile:', profile);
+    } catch (error) {
+      console.error('❌ Failed to load IdenZero profile:', error);
+      setIdenZeroError(`Failed to load profile: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setIdenZeroProfile(null);
+    } finally {
+      setIdenZeroLoading(false);
+    }
+  };
+
   // Refresh certificates
   const refreshCertificates = () => {
     loadUserCertificates();
@@ -443,27 +469,58 @@ const SimpleDashboard = () => {
     });
   };
 
-  // Get GitHub stats (would fetch from GitHub API)
+  // Get GitHub stats from IdenZero API
   const getGithubStats = () => {
-    if (!githubConnected || !githubUserData) return null;
+    if (!idenZeroProfile) return null;
+
+    const profile = idenZeroProfile;
+    const estimatedWeeklyCommits = Math.floor(profile.github_stats.total_commits / (profile.github_stats.years_active * 52));
+    
+    // Calculate a realistic weekly progress based on contribution streak
+    const weeklyProgress = Math.min(0.95, Math.max(0.3, profile.github_stats.contribution_streak / 365));
 
     return {
-      weeklyCommits: Math.floor(Math.random() * 30) + 15,
-      weeklyProgress: Math.random() * 0.4 + 0.6, // 60-100%
-      languages: [
-        { name: 'TypeScript', color: 'blue', percentage: 45 },
-        { name: 'JavaScript', color: 'yellow', percentage: 30 },
-        { name: 'Rust', color: 'red', percentage: 15 },
-        { name: 'Python', color: 'green', percentage: 10 }
-      ],
-      repositories: [
-        { name: 'IdenZero-platform', commits: Math.floor(Math.random() * 20) + 10 },
-        { name: 'defi-analytics-app', commits: Math.floor(Math.random() * 15) + 5 },
-        { name: 'react-portfolio', commits: Math.floor(Math.random() * 10) + 3 }
-      ],
-      streak: Math.floor(Math.random() * 30) + 12,
-      yearlyContributions: Math.floor(Math.random() * 200) + 287
+      weeklyCommits: estimatedWeeklyCommits,
+      weeklyProgress,
+      languages: profile.top_languages.map(lang => ({
+        name: lang.name,
+        color: getLanguageColor(lang.name),
+        percentage: Math.round(lang.percentage)
+      })),
+      repositories: profile.key_contributions.slice(0, 5).map(repo => ({
+        name: repo.repository,
+        commits: Math.floor(Math.random() * 50) + 10, // Estimate since not provided by API
+        language: repo.primary_language
+      })),
+      streak: profile.github_stats.contribution_streak,
+      yearlyContributions: Math.floor(profile.github_stats.total_commits / profile.github_stats.years_active)
     };
+  };
+
+  // Get language color helper function
+  const getLanguageColor = (language: string) => {
+    const colors: Record<string, string> = {
+      'JavaScript': '#f1e05a',
+      'TypeScript': '#3178c6', 
+      'Rust': '#dea584',
+      'Python': '#3572a5',
+      'Java': '#b07219',
+      'CSS': '#563d7c',
+      'HTML': '#e34c26',
+      'Go': '#00ADD8',
+      'C++': '#f34b7d',
+      'C': '#555555',
+      'Solidity': '#AA6746',
+      'Swift': '#fa7343',
+      'Kotlin': '#F18E33',
+      'PHP': '#4F5D95',
+      'Ruby': '#701516',
+      'C#': '#239120',
+      'Dart': '#00B4AB',
+      'Shell': '#89e051',
+      'Vue': '#4FC08D'
+    };
+    return colors[language] || '#6366f1';
   };
 
   const sidebarItems = [
@@ -543,10 +600,14 @@ const SimpleDashboard = () => {
                       <User className="w-8 h-8 text-gray-400" />
                     </div>
                     <div>
-                      <h3 className="text-white font-medium">John Doe</h3>
-                      <p className="text-gray-400 text-sm">Full Stack Developer</p>
+                      <h3 className="text-white font-medium">
+                        {idenZeroProfile?.username || 'Loading...'}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {idenZeroProfile?.summary?.split('.')[0] || 'Full Stack Developer'}
+                      </p>
                       <Badge variant="outline" className="mt-2 border-gray-600 text-gray-300">
-                        Verified
+                        {idenZeroProfile ? 'Verified' : 'Loading...'}
                       </Badge>
                     </div>
                   </div>
@@ -554,21 +615,397 @@ const SimpleDashboard = () => {
                 
                 <Card className="bg-white/5 border-gray-800 p-6">
                   <div className="text-center">
-                    <div className="text-2xl font-light text-white">847</div>
-                    <div className="text-gray-400 text-sm">Trust Score</div>
+                    <div className="text-2xl font-light text-white">
+                      {idenZeroProfile ? Math.round(idenZeroProfile.iden_score.overall_score) : '---'}
+                    </div>
+                    <div className="text-gray-400 text-sm">IdenScore</div>
                   </div>
                 </Card>
                 
                 <Card className="bg-white/5 border-gray-800 p-6">
                   <div className="text-center">
-                    <div className="text-2xl font-light text-white">12</div>
+                    <div className="text-2xl font-light text-white">
+                      {idenZeroProfile ? idenZeroProfile.proficiency.length : '---'}
+                    </div>
                     <div className="text-gray-400 text-sm">Verified Skills</div>
                   </div>
                 </Card>
               </div>
             </section>
 
+            {/* Achievement Badges */}
+            {idenZeroProfile && idenZeroProfile.badges && idenZeroProfile.badges.length > 0 && (
+              <section className="space-y-6">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">🏆 Achievement Badges</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {idenZeroProfile.badges.slice(0, 6).map((badge, index) => {
+                    const getBadgeColors = (rarity: string) => {
+                      switch (rarity.toLowerCase()) {
+                        case 'common':
+                          return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+                        case 'uncommon':
+                          return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                        case 'rare':
+                          return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+                        case 'epic':
+                          return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+                        case 'legendary':
+                          return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+                        default:
+                          return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+                      }
+                    };
 
+                    return (
+                      <Card key={badge.id} className={`bg-white/5 border-gray-800 p-4 hover:bg-white/10 transition-all duration-200`}>
+                        <div className="flex items-start space-x-3">
+                          <div className="text-2xl">{badge.icon}</div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <h4 className="text-white font-medium text-sm">{badge.name}</h4>
+                              <Badge className={`text-xs ${getBadgeColors(badge.rarity)}`}>
+                                {badge.rarity}
+                              </Badge>
+                            </div>
+                            <p className="text-gray-400 text-xs mb-2">{badge.description}</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-gray-500 text-xs capitalize">{badge.category}</span>
+                              <span className="text-gray-500 text-xs">
+                                {new Date(badge.earned_date).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+                {idenZeroProfile.badges.length > 6 && (
+                  <div className="text-center">
+                    <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
+                      View All {idenZeroProfile.badges.length} Badges
+                    </Button>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* IdenScore Analysis */}
+            {idenZeroProfile && (
+              <section className="space-y-6">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">🎯 IdenScore Analysis</h2>
+                <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border-purple-500/30 p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Score Display */}
+                    <div className="text-center">
+                      <div className="relative w-24 h-24 mx-auto mb-4">
+                        <div className="w-24 h-24 rounded-full border-4 border-gray-700 flex items-center justify-center bg-gray-800/50">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-white">
+                              {Math.round(idenZeroProfile.iden_score.overall_score)}
+                            </div>
+                            <div className="text-xs text-gray-400">/1000</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-lg font-medium text-white">
+                          {idenZeroProfile.iden_score.skill_level}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          Growth: {idenZeroProfile.iden_score.growth_potential.toFixed(1)}%
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          Confidence: {idenZeroProfile.iden_score.confidence_level.toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Categories */}
+                    <div className="lg:col-span-2">
+                      <h4 className="text-white font-medium mb-4">📊 Skill Categories</h4>
+                      <div className="space-y-3">
+                        {Object.entries(idenZeroProfile.iden_score.categories).map(([category, score]) => {
+                          const categoryNames: Record<string, string> = {
+                            'technical_mastery': '🔧 Technical Mastery',
+                            'architecture_design': '🏗️ Architecture Design', 
+                            'code_quality': '✨ Code Quality',
+                            'innovation': '🚀 Innovation',
+                            'collaboration': '🤝 Collaboration',
+                            'leadership': '👑 Leadership',
+                            'continuous_learning': '📚 Continuous Learning',
+                            'domain_expertise': '🎓 Domain Expertise'
+                          };
+                          
+                          const displayName = categoryNames[category] || category.replace('_', ' ');
+                          const percentage = Math.min(score, 100);
+                          
+                          return (
+                            <div key={category} className="flex items-center justify-between">
+                              <span className="text-gray-300 text-sm">{displayName}</span>
+                              <div className="flex items-center space-x-2">
+                                <div className="w-24 h-2 bg-gray-700 rounded-full">
+                                  <div 
+                                    className="h-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-500"
+                                    style={{ width: `${percentage}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-white text-sm w-8 text-right">{score.toFixed(0)}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Strengths and Areas for Improvement */}
+                  <div className="mt-6 pt-6 border-t border-gray-700/50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="text-white font-medium mb-2 flex items-center">
+                          💪 Top Strength
+                        </h4>
+                        <p className="text-gray-300 text-sm">
+                          {idenZeroProfile.iden_score.top_strength}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-white font-medium mb-2 flex items-center">
+                          📈 Focus Area
+                        </h4>
+                        <p className="text-gray-300 text-sm">
+                          {idenZeroProfile.iden_score.improvement_area}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recommended Actions */}
+                  {idenZeroProfile.iden_score.recommended_actions && idenZeroProfile.iden_score.recommended_actions.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-700/50">
+                      <h4 className="text-white font-medium mb-4">💡 Recommended Actions</h4>
+                      <div className="space-y-3">
+                        {idenZeroProfile.iden_score.recommended_actions.slice(0, 3).map((action, index) => {
+                          const priorityColors = {
+                            'high': 'border-l-red-500',
+                            'medium': 'border-l-yellow-500',
+                            'low': 'border-l-green-500'
+                          };
+                          
+                          return (
+                            <div key={index} className={`bg-gray-800/30 p-3 rounded-lg border-l-4 ${priorityColors[action.priority as keyof typeof priorityColors] || 'border-l-gray-500'}`}>
+                              <div className="flex items-start justify-between mb-2">
+                                <h5 className="text-white font-medium text-sm">{action.title}</h5>
+                                <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs">
+                                  +{action.impact_points} pts
+                                </Badge>
+                              </div>
+                              <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                <span>📅 {action.timeline}</span>
+                                <span>⚡ Effort: {action.effort_level}/10</span>
+                                <span className="capitalize">🔥 {action.priority}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Next Milestone */}
+                  <div className="mt-6 pt-6 border-t border-gray-700/50 text-center">
+                    <p className="text-gray-300 text-sm">
+                      🎯 <strong>Next Target:</strong> {Math.round(idenZeroProfile.iden_score.next_milestone)} points
+                    </p>
+                    <p className="text-gray-500 text-xs mt-2">
+                      🔒 Verified: {idenZeroProfile.iden_score.verification_hash}...
+                    </p>
+                  </div>
+                </Card>
+              </section>
+            )}
+
+            {/* Domain Expertise */}
+            {idenZeroProfile && idenZeroProfile.domain_expertise && (
+              <section className="space-y-6">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">🎓 Domain Expertise</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(idenZeroProfile.domain_expertise).map(([domain, expertise]) => {
+                    const domainIcons: Record<string, string> = {
+                      'ai_ml': '🤖',
+                      'web3': '⛓️',
+                      'cybersecurity': '🔒',
+                      'data_science': '📊',
+                      'devops': '⚙️',
+                      'iot': '📡',
+                      'mobile': '📱',
+                      'gaming': '🎮'
+                    };
+
+                    const domainNames: Record<string, string> = {
+                      'ai_ml': 'AI/ML',
+                      'web3': 'Web3',
+                      'cybersecurity': 'Cybersecurity', 
+                      'data_science': 'Data Science',
+                      'devops': 'DevOps',
+                      'iot': 'IoT',
+                      'mobile': 'Mobile Development',
+                      'gaming': 'Game Development'
+                    };
+
+                    const getLevelColor = (level: string) => {
+                      switch (level.toLowerCase()) {
+                        case 'beginner':
+                          return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                        case 'intermediate':
+                          return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                        case 'advanced':
+                          return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
+                        case 'expert':
+                          return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+                        default:
+                          return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                      }
+                    };
+
+                    const displayName = domainNames[domain] || domain.replace('_', ' ');
+                    const icon = domainIcons[domain] || '🔧';
+                    const percentage = Math.min(expertise.score, 100);
+
+                    return (
+                      <Card key={domain} className="bg-white/5 border-gray-800 p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{icon}</span>
+                              <span className="text-white font-medium text-sm">{displayName}</span>
+                            </div>
+                            <Badge className={`text-xs ${getLevelColor(expertise.level)}`}>
+                              {expertise.level}
+                            </Badge>
+                          </div>
+                          
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-gray-400 text-xs">Score</span>
+                              <span className="text-white text-sm font-medium">
+                                {expertise.score.toFixed(1)}/100
+                              </span>
+                            </div>
+                            <div className="w-full h-2 bg-gray-700 rounded-full">
+                              <div 
+                                className="h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
+                                style={{ width: `${percentage}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {expertise.projects > 0 && (
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-gray-500">Projects</span>
+                              <span className="text-gray-300">{expertise.projects}</span>
+                            </div>
+                          )}
+
+                          {expertise.technologies && expertise.technologies.length > 0 && (
+                            <div>
+                              <p className="text-gray-500 text-xs mb-1">Technologies:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {expertise.technologies.slice(0, 3).map((tech, index) => (
+                                  <Badge key={index} className="bg-gray-700/50 text-gray-300 text-xs">
+                                    {tech}
+                                  </Badge>
+                                ))}
+                                {expertise.technologies.length > 3 && (
+                                  <Badge className="bg-gray-700/50 text-gray-400 text-xs">
+                                    +{expertise.technologies.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Top Languages */}
+            {idenZeroProfile && idenZeroProfile.top_languages && idenZeroProfile.top_languages.length > 0 && (
+              <section className="space-y-6">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">🏆 Programming Languages</h2>
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="space-y-4">
+                    {idenZeroProfile.top_languages.map((language, index) => {
+                      const languageColor = getLanguageColor(language.name);
+                      
+                      return (
+                        <div key={language.name} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div 
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: languageColor }}
+                            ></div>
+                            <span className="text-white font-medium">{language.name}</span>
+                            <span className="text-gray-400 text-sm">
+                              ({language.lines_of_code.toLocaleString()} lines)
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center space-x-3">
+                            <div className="w-32 h-2 bg-gray-700 rounded-full">
+                              <div 
+                                className="h-2 rounded-full transition-all duration-500"
+                                style={{ 
+                                  width: `${language.percentage}%`,
+                                  backgroundColor: languageColor
+                                }}
+                              ></div>
+                            </div>
+                            <span className="text-white text-sm font-medium w-12 text-right">
+                              {language.percentage.toFixed(1)}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Summary Stats */}
+                  <div className="mt-6 pt-6 border-t border-gray-700/50">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                      <div>
+                        <div className="text-lg font-light text-white">
+                          {idenZeroProfile.top_languages.length}
+                        </div>
+                        <div className="text-gray-400 text-sm">Languages</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-light text-white">
+                          {idenZeroProfile.top_languages.reduce((total, lang) => total + lang.lines_of_code, 0).toLocaleString()}
+                        </div>
+                        <div className="text-gray-400 text-sm">Total Lines</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-light text-white">
+                          {idenZeroProfile.top_languages[0]?.name || 'N/A'}
+                        </div>
+                        <div className="text-gray-400 text-sm">Primary Language</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-light text-white">
+                          {idenZeroProfile.github_stats.contribution_streak}
+                        </div>
+                        <div className="text-gray-400 text-sm">Day Streak</div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </section>
+            )}
 
             {/* Credentials */}
             <section className="space-y-6">
@@ -926,73 +1363,67 @@ const SimpleDashboard = () => {
               <Card className="bg-white/5 border-gray-800 p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                    <Github className={`w-8 h-8 ${githubConnected ? 'text-green-400' : 'text-gray-400'}`} />
+                    <Github className={`w-8 h-8 ${idenZeroProfile ? 'text-green-400' : 'text-gray-400'}`} />
                     <div>
-                      <h3 className="text-white font-medium">GitHub Analysis</h3>
+                      <h3 className="text-white font-medium">IdenZero Skills Analysis</h3>
                       <p className="text-gray-400 text-sm">
-                        {githubConnected ? 'Last updated: 2 hours ago' : 'Connect GitHub to see analysis'}
+                        {idenZeroProfile ? `Last updated: ${new Date(idenZeroProfile.last_updated).toLocaleDateString()}` : 'Loading skills analysis...'}
                       </p>
                     </div>
                   </div>
-                  {!githubConnected && (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="border-gray-600 text-gray-300 hover:bg-gray-800"
-                      onClick={() => setActiveSection('settings')}
-                    >
-                      Connect
-                    </Button>
+                  {idenZeroLoading && (
+                    <Clock className="w-5 h-5 text-blue-400 animate-spin" />
                   )}
                 </div>
                 
-                {githubConnected ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">JavaScript</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 h-2 bg-gray-700 rounded-full">
-                          <div className="w-20 h-2 bg-white rounded-full"></div>
-                        </div>
-                        <span className="text-white text-sm">Expert</span>
-                      </div>
+                {idenZeroError && (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-red-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <X className="w-8 h-8 text-red-400" />
                     </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">React</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 h-2 bg-gray-700 rounded-full">
-                          <div className="w-18 h-2 bg-white rounded-full"></div>
-                        </div>
-                        <span className="text-white text-sm">Advanced</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-300">Python</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 h-2 bg-gray-700 rounded-full">
-                          <div className="w-16 h-2 bg-white rounded-full"></div>
-                        </div>
-                        <span className="text-white text-sm">Intermediate</span>
-                      </div>
-                    </div>
+                    <p className="text-red-400 text-sm mb-2">Failed to load skills data</p>
+                    <p className="text-gray-500 text-xs">{idenZeroError}</p>
                   </div>
-                ) : (
+                )}
+                
+                {idenZeroProfile && !idenZeroError ? (
+                  <div className="space-y-4">
+                    {idenZeroProfile.proficiency.map((skill, index) => {
+                      // Calculate skill level based on position and other factors
+                      const getSkillLevel = (skill: string, index: number) => {
+                        const levels = ['Expert', 'Advanced', 'Intermediate', 'Beginner'];
+                        return levels[Math.min(index, levels.length - 1)];
+                      };
+                      
+                      const getSkillWidth = (index: number) => {
+                        const widths = ['w-20', 'w-18', 'w-16', 'w-14'];
+                        return widths[Math.min(index, widths.length - 1)];
+                      };
+
+                      const skillLevel = getSkillLevel(skill, index);
+                      const skillWidth = getSkillWidth(index);
+
+                      return (
+                        <div key={skill} className="flex items-center justify-between">
+                          <span className="text-gray-300">{skill}</span>
+                          <div className="flex items-center space-x-2">
+                            <div className="w-24 h-2 bg-gray-700 rounded-full">
+                              <div className={`${skillWidth} h-2 bg-white rounded-full`}></div>
+                            </div>
+                            <span className="text-white text-sm">{skillLevel}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : !idenZeroError && (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Github className="w-8 h-8 text-gray-600" />
+                      <Clock className="w-8 h-8 text-gray-600 animate-spin" />
                     </div>
                     <p className="text-gray-400 text-sm mb-4">
-                      Connect your GitHub account to see detailed skills analysis
+                      Loading your skills analysis from IdenZero...
                     </p>
-                    <Button 
-                      size="sm" 
-                      className="bg-white text-black hover:bg-gray-200"
-                      onClick={() => setActiveSection('settings')}
-                    >
-                      Connect GitHub
-                    </Button>
                   </div>
                 )}
               </Card>
@@ -1178,6 +1609,98 @@ const SimpleDashboard = () => {
                 </div>
               </Card>
             </section>
+
+            {/* Key Contributions */}
+            {idenZeroProfile && idenZeroProfile.key_contributions && idenZeroProfile.key_contributions.length > 0 && (
+              <section className="space-y-6">
+                <h2 className="text-lg font-light text-white border-b border-gray-800 pb-2">🌟 Key Contributions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {idenZeroProfile.key_contributions.slice(0, 6).map((contribution, index) => (
+                    <Card key={index} className="bg-white/5 border-gray-800 p-6 hover:bg-white/10 transition-all duration-200">
+                      <div className="space-y-4">
+                        <div className="flex items-start justify-between">
+                          <h4 className="text-white font-medium text-lg flex items-center space-x-2">
+                            <span>{contribution.repository}</span>
+                          </h4>
+                          <div className="flex items-center space-x-2">
+                            {contribution.stars > 0 && (
+                              <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 text-xs">
+                                ⭐ {contribution.stars}
+                              </Badge>
+                            )}
+                            {contribution.primary_language && (
+                              <Badge 
+                                className="text-xs"
+                                style={{
+                                  backgroundColor: `${getLanguageColor(contribution.primary_language)}20`,
+                                  color: getLanguageColor(contribution.primary_language),
+                                  borderColor: `${getLanguageColor(contribution.primary_language)}30`
+                                }}
+                              >
+                                {contribution.primary_language}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <p className="text-gray-400 text-sm line-clamp-3">
+                          {contribution.description || 'No description available'}
+                        </p>
+                        
+                        {contribution.readme_insights && (
+                          <div className="bg-blue-500/10 border-l-4 border-blue-500/50 p-3 rounded">
+                            <p className="text-blue-400 text-sm">
+                              💡 {contribution.readme_insights}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-700/50">
+                          <span className="text-gray-500 text-xs">Repository</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-gray-400 hover:text-white p-0 h-auto"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+                
+                {/* GitHub Stats Summary */}
+                <Card className="bg-white/5 border-gray-800 p-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div>
+                      <div className="text-2xl font-light text-white mb-1">
+                        {idenZeroProfile.github_stats.public_repos}
+                      </div>
+                      <div className="text-gray-400 text-sm">Public Repos</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-light text-white mb-1">
+                        {idenZeroProfile.github_stats.total_commits.toLocaleString()}
+                      </div>
+                      <div className="text-gray-400 text-sm">Total Commits</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-light text-white mb-1">
+                        {idenZeroProfile.github_stats.total_stars}
+                      </div>
+                      <div className="text-gray-400 text-sm">Total Stars</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-light text-white mb-1">
+                        {idenZeroProfile.github_stats.years_active.toFixed(1)}
+                      </div>
+                      <div className="text-gray-400 text-sm">Years Active</div>
+                    </div>
+                  </div>
+                </Card>
+              </section>
+            )}
 
             {/* Achievements */}
             <section className="space-y-6">
