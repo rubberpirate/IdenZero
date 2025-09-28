@@ -2331,13 +2331,13 @@ const SimpleDashboard = () => {
                   SECTION
                 </div>
               </div>
-              <button
+              {/* <button
                 onClick={() => navigate('/profile')}
                 className="px-4 py-2 text-sm text-zinc-300 hover:text-zinc-100 bg-zinc-800 hover:bg-zinc-700 rounded-xl border border-zinc-600/30 hover:border-zinc-500/50 transition-all duration-300 shadow-lg"
               >
                 <User className="h-4 w-4 mr-2 inline" />
                 Profile
-              </button>
+              </button> */}
             </div>
           </div>
         </header>
