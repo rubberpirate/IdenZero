@@ -81,24 +81,27 @@ const SimpleDashboard = () => {
   const [idenZeroLoading, setIdenZeroLoading] = useState(false);
   const [idenZeroError, setIdenZeroError] = useState<string | null>(null);
 
+  // GitHub username input modal state
+  const [showGithubUsernameModal, setShowGithubUsernameModal] = useState(false);
+  const [inputGithubUsername, setInputGithubUsername] = useState('');
+
   // Check for existing GitHub connection on mount
   React.useEffect(() => {
     const checkGithubConnection = () => {
       try {
-        const storedUserData = localStorage.getItem('github_user_data');
-        const storedToken = localStorage.getItem('github_access_token');
+        const storedUsername = localStorage.getItem('github_username');
         
-        if (storedUserData && storedToken) {
-          const userData = JSON.parse(storedUserData);
-          setGithubUserData(userData);
-          setGithubUsername(userData.login);
+        if (storedUsername) {
+          setGithubUsername(storedUsername);
           setGithubConnected(true);
+          console.log('📱 Found stored GitHub username:', storedUsername);
+        } else {
+          console.log('📱 No GitHub username found in localStorage');
         }
       } catch (error) {
         console.error('Error checking GitHub connection:', error);
         // Clear corrupted data
-        localStorage.removeItem('github_user_data');
-        localStorage.removeItem('github_access_token');
+        localStorage.removeItem('github_username');
       }
     };
 
@@ -212,12 +215,14 @@ const SimpleDashboard = () => {
 
   // Disconnect GitHub
   const disconnectGithub = () => {
+    localStorage.removeItem('github_username');
     localStorage.removeItem('github_user_data');
     localStorage.removeItem('github_access_token');
     setGithubConnected(false);
     setGithubUsername('');
     setGithubUserData(null);
     setGithubError(null);
+    setIdenZeroProfile(null);
   };
 
   const handleBackToHome = () => {
@@ -227,7 +232,8 @@ const SimpleDashboard = () => {
   const handleGithubConnect = () => {
     if (!githubConnected) {
       if (githubLoading) return; // Prevent multiple connections
-      setShowGithubDialog(true);
+      setShowGithubUsernameModal(true);
+      setInputGithubUsername('');
     } else {
       disconnectGithub();
     }
@@ -236,6 +242,43 @@ const SimpleDashboard = () => {
   const handleGithubConnectComplete = () => {
     setShowGithubDialog(false);
     initiateGithubOAuth();
+  };
+
+  // Handle GitHub username input
+  const handleGithubUsernameSubmit = async () => {
+    if (!inputGithubUsername.trim()) {
+      setGithubError('Please enter a valid GitHub username');
+      return;
+    }
+
+    setGithubLoading(true);
+    setGithubError(null);
+
+    try {
+      // Store the username in localStorage
+      localStorage.setItem('github_username', inputGithubUsername.trim());
+      setGithubUsername(inputGithubUsername.trim());
+      setGithubConnected(true);
+      
+      // Close the modal
+      setShowGithubUsernameModal(false);
+      
+      // Load the profile data
+      await loadIdenZeroProfile();
+      
+      console.log('✅ Successfully connected GitHub username:', inputGithubUsername.trim());
+    } catch (error) {
+      console.error('❌ Error connecting GitHub:', error);
+      setGithubError('Failed to load profile. Please check the username and try again.');
+    } finally {
+      setGithubLoading(false);
+    }
+  };
+
+  const handleGithubUsernameCancel = () => {
+    setShowGithubUsernameModal(false);
+    setInputGithubUsername('');
+    setGithubError(null);
   };
 
   // Job management handlers
@@ -346,13 +389,22 @@ const SimpleDashboard = () => {
   };
 
   // Load IdenZero profile data
-  const loadIdenZeroProfile = async (username: string = 'jayesh-kr') => {
+  const loadIdenZeroProfile = async () => {
+    const storedUsername = localStorage.getItem('github_username');
+    
+    if (!storedUsername) {
+      console.log('❌ No GitHub username found, redirecting to settings');
+      setIdenZeroError('Please connect your GitHub account first');
+      setActiveSection('settings');
+      return;
+    }
+
     setIdenZeroLoading(true);
     setIdenZeroError(null);
     
     try {
-      console.log('🚀 Loading IdenZero profile for:', username);
-      const profile = await idenZeroApi.getStreamlinedProfile(username);
+      console.log('🚀 Loading IdenZero profile for:', storedUsername);
+      const profile = await idenZeroApi.getStreamlinedProfile(storedUsername);
       setIdenZeroProfile(profile);
       console.log('🚀 Successfully loaded IdenZero profile:', profile);
     } catch (error) {
@@ -533,7 +585,30 @@ const SimpleDashboard = () => {
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'profile':
+      case 'profile': {
+        // Check if GitHub username is connected
+        const storedUsername = localStorage.getItem('github_username');
+        if (!storedUsername) {
+          return (
+            <div className="p-8 space-y-12">
+              <div className="text-center py-16">
+                <Github className="w-16 h-16 text-gray-400 mx-auto mb-6" />
+                <h2 className="text-2xl font-light text-white mb-4">Connect Your GitHub Account</h2>
+                <p className="text-gray-400 mb-8">
+                  To view your professional profile, please connect your GitHub account first.
+                </p>
+                <Button 
+                  onClick={() => setActiveSection('settings')}
+                  className="bg-white text-black hover:bg-gray-200"
+                >
+                  <Github className="w-4 h-4 mr-2" />
+                  Go to Settings
+                </Button>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="p-8 space-y-12">
             {/* Profile Header */}
@@ -1729,6 +1804,7 @@ const SimpleDashboard = () => {
             </section>
           </div>
         );
+      }
 
       case 'settings':
         return (
@@ -2280,6 +2356,85 @@ const SimpleDashboard = () => {
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
+      )}
+
+      {/* GitHub Username Input Modal */}
+      {showGithubUsernameModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="bg-black border-gray-800 max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <Github className="w-6 h-6 text-white" />
+                  <h3 className="text-xl font-light text-white">Connect GitHub</h3>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleGithubUsernameCancel}
+                  className="text-gray-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    GitHub Username
+                  </label>
+                  <input
+                    type="text"
+                    value={inputGithubUsername}
+                    onChange={(e) => setInputGithubUsername(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleGithubUsernameSubmit()}
+                    className="w-full px-3 py-2 bg-white/5 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Enter your GitHub username"
+                    disabled={githubLoading}
+                  />
+                </div>
+
+                {githubError && (
+                  <div className="text-red-400 text-sm">
+                    {githubError}
+                  </div>
+                )}
+
+                <div className="text-sm text-gray-400">
+                  <p>We'll analyze your public GitHub repositories to generate your professional profile and skills assessment.</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={handleGithubUsernameCancel}
+                  disabled={githubLoading}
+                  className="flex-1 border-gray-600 text-gray-300"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleGithubUsernameSubmit}
+                  disabled={githubLoading || !inputGithubUsername.trim()}
+                  className="flex-1 bg-white text-black hover:bg-gray-200"
+                >
+                  {githubLoading ? (
+                    <>
+                      <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      <Github className="w-4 h-4 mr-2" />
+                      Connect
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
       )}
 
       {/* GitHub Connect Dialog */}
